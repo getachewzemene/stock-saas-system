@@ -20,6 +20,13 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { 
@@ -33,7 +40,8 @@ import {
   Truck,
   RefreshCw,
   Building,
-  FileText
+  FileText,
+  Filter
 } from "lucide-react";
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
@@ -58,6 +66,7 @@ interface Location {
 export default function LocationsPage() {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
+  const [stockFilter, setStockFilter] = useState("all");
   const [locations, setLocations] = useState<Location[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -165,11 +174,18 @@ export default function LocationsPage() {
   const getTotalTransfersCount = (location?: Location) => 
     getTransfersFromCount(location) + getTransfersToCount(location);
 
-  const filteredLocations = locations.filter(location =>
-    location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.address?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLocations = locations.filter(location => {
+    const matchesSearch = location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.address?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const stockCount = getStockItemsCount(location);
+    const matchesStockFilter = stockFilter === "all" || 
+      (stockFilter === "withStock" && stockCount > 0) ||
+      (stockFilter === "noStock" && stockCount === 0);
+    
+    return matchesSearch && matchesStockFilter;
+  });
 
   const totalLocations = locations.length;
   const totalStockItems = locations.reduce((sum, loc) => sum + getStockItemsCount(loc), 0);
@@ -406,6 +422,17 @@ export default function LocationsPage() {
                     className="pl-10 w-full"
                   />
                 </div>
+                <Select value={stockFilter} onValueChange={setStockFilter}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    <SelectItem value="withStock">With Stock Items</SelectItem>
+                    <SelectItem value="noStock">No Stock Items</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardHeader>
