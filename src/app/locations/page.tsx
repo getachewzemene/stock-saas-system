@@ -159,10 +159,10 @@ export default function LocationsPage() {
   };
 
   // Helper functions to safely access count values
-  const getStockItemsCount = (location: Location) => location._count?.stockItems || 0;
-  const getTransfersFromCount = (location: Location) => location._count?.transfersFrom || 0;
-  const getTransfersToCount = (location: Location) => location._count?.transfersTo || 0;
-  const getTotalTransfersCount = (location: Location) => 
+  const getStockItemsCount = (location?: Location) => location?._count?.stockItems || 0;
+  const getTransfersFromCount = (location?: Location) => location?._count?.transfersFrom || 0;
+  const getTransfersToCount = (location?: Location) => location?._count?.transfersTo || 0;
+  const getTotalTransfersCount = (location?: Location) => 
     getTransfersFromCount(location) + getTransfersToCount(location);
 
   const filteredLocations = locations.filter(location =>
