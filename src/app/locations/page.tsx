@@ -47,11 +47,11 @@ interface Location {
   address?: string;
   createdAt: string;
   updatedAt: string;
-  _count: {
-    stockItems: number;
-    transfersFrom: number;
-    transfersTo: number;
-    stockLogs: number;
+  _count?: {
+    stockItems?: number;
+    transfersFrom?: number;
+    transfersTo?: number;
+    stockLogs?: number;
   };
 }
 
@@ -158,6 +158,13 @@ export default function LocationsPage() {
     setEditingLocation(null);
   };
 
+  // Helper functions to safely access count values
+  const getStockItemsCount = (location: Location) => location._count?.stockItems || 0;
+  const getTransfersFromCount = (location: Location) => location._count?.transfersFrom || 0;
+  const getTransfersToCount = (location: Location) => location._count?.transfersTo || 0;
+  const getTotalTransfersCount = (location: Location) => 
+    getTransfersFromCount(location) + getTransfersToCount(location);
+
   const filteredLocations = locations.filter(location =>
     location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     location.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -165,8 +172,8 @@ export default function LocationsPage() {
   );
 
   const totalLocations = locations.length;
-  const totalStockItems = locations.reduce((sum, loc) => sum + loc._count.stockItems, 0);
-  const totalTransfers = locations.reduce((sum, loc) => sum + loc._count.transfersFrom + loc._count.transfersTo, 0);
+  const totalStockItems = locations.reduce((sum, loc) => sum + getStockItemsCount(loc), 0);
+  const totalTransfers = locations.reduce((sum, loc) => sum + getTotalTransfersCount(loc), 0);
 
   const columns = [
     {
@@ -206,7 +213,7 @@ export default function LocationsPage() {
       render: (location: Location) => (
         <div className="flex items-center space-x-2">
           <Package className="w-4 h-4 text-green-600" />
-          <span className="font-medium">{location._count.stockItems}</span>
+          <span className="font-medium">{getStockItemsCount(location)}</span>
         </div>
       ),
     },
@@ -218,7 +225,7 @@ export default function LocationsPage() {
         <div className="flex items-center space-x-2">
           <Truck className="w-4 h-4 text-purple-600" />
           <span className="font-medium">
-            {location._count.transfersFrom + location._count.transfersTo}
+            {getTotalTransfersCount(location)}
           </span>
         </div>
       ),
