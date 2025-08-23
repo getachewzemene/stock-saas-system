@@ -291,28 +291,35 @@ export default function SettingsPage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="general" className="flex items-center space-x-2">
-              <Store className="w-4 h-4" />
-              <span>General</span>
-            </TabsTrigger>
-            <TabsTrigger value="inventory" className="flex items-center space-x-2">
-              <Package className="w-4 h-4" />
-              <span>Inventory</span>
-            </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center space-x-2">
-              <Bell className="w-4 h-4" />
-              <span>Notifications</span>
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center space-x-2">
-              <Shield className="w-4 h-4" />
-              <span>Security</span>
-            </TabsTrigger>
-            <TabsTrigger value="backup" className="flex items-center space-x-2">
-              <Database className="w-4 h-4" />
-              <span>Backup</span>
-            </TabsTrigger>
-          </TabsList>
+          <div className="relative w-full overflow-x-auto">
+            <TabsList className="flex w-max min-w-full bg-muted p-1 rounded-lg">
+              <TabsTrigger value="general" className="flex-shrink-0 px-3 py-2 text-xs min-w-[80px] sm:min-w-[100px] md:min-w-[120px]">
+                <Store className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">General</span>
+                <span className="sm:hidden">Gen</span>
+              </TabsTrigger>
+              <TabsTrigger value="inventory" className="flex-shrink-0 px-3 py-2 text-xs min-w-[80px] sm:min-w-[100px] md:min-w-[120px]">
+                <Package className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Inventory</span>
+                <span className="sm:hidden">Inv</span>
+              </TabsTrigger>
+              <TabsTrigger value="notifications" className="flex-shrink-0 px-3 py-2 text-xs min-w-[80px] sm:min-w-[100px] md:min-w-[120px]">
+                <Bell className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Notifications</span>
+                <span className="sm:hidden">Notif</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex-shrink-0 px-3 py-2 text-xs min-w-[80px] sm:min-w-[100px] md:min-w-[120px]">
+                <Shield className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Security</span>
+                <span className="sm:hidden">Sec</span>
+              </TabsTrigger>
+              <TabsTrigger value="backup" className="flex-shrink-0 px-3 py-2 text-xs min-w-[80px] sm:min-w-[100px] md:min-w-[120px]">
+                <Database className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Backup</span>
+                <span className="sm:hidden">Bkp</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="general" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
