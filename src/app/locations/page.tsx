@@ -178,7 +178,7 @@ export default function LocationsPage() {
   const columns = [
     {
       key: "name",
-      title: "Location Name",
+      header: "Location Name",
       sortable: true,
       render: (location: Location) => (
         <div className="flex items-center space-x-3">
@@ -196,7 +196,7 @@ export default function LocationsPage() {
     },
     {
       key: "address",
-      title: "Address",
+      header: "Address",
       sortable: false,
       render: (location: Location) => (
         <div className="text-sm">
@@ -208,7 +208,7 @@ export default function LocationsPage() {
     },
     {
       key: "stockItems",
-      title: "Stock Items",
+      header: "Stock Items",
       sortable: true,
       render: (location: Location) => (
         <div className="flex items-center space-x-2">
@@ -219,7 +219,7 @@ export default function LocationsPage() {
     },
     {
       key: "transfers",
-      title: "Transfers",
+      header: "Transfers",
       sortable: true,
       render: (location: Location) => (
         <div className="flex items-center space-x-2">
@@ -232,7 +232,7 @@ export default function LocationsPage() {
     },
     {
       key: "actions",
-      title: "Actions",
+      header: "Actions",
       sortable: false,
       render: (location: Location) => (
         <DropdownMenu>
