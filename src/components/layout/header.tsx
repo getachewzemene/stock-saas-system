@@ -33,6 +33,7 @@ import {
   Settings,
   MoreVertical
 } from "lucide-react";
+import { PWAInstallButton, PWAStatusIndicator } from "@/components/pwa/pwa-install-button";
 import { 
   Tooltip,
   TooltipContent,
@@ -103,6 +104,16 @@ export function Header({ title, subtitle, showNewButton = false, onNewClick }: H
         </div>
         
         <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* PWA Status Indicator */}
+          <div className="hidden lg:block">
+            <PWAStatusIndicator />
+          </div>
+          
+          {/* PWA Install Button */}
+          <div className="hidden md:block">
+            <PWAInstallButton />
+          </div>
+          
           {/* Search - hidden on mobile, shown on tablet+ */}
           <div className="hidden sm:block relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
