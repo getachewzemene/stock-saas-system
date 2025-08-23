@@ -190,8 +190,8 @@ export function VirtualizedTable<T>({
             {/* Virtualized Table Body */}
             <TableBody style={{ position: 'relative' }}>
               {loading ? (
-                // Loading skeleton with proper alignment
-                <div style={{ position: 'relative', zIndex: 1 }}>
+                // Loading skeleton with proper alignment - use TableRow instead of div
+                <>
                   {Array.from({ length: Math.min(10, pagination?.limit || 10) }).map((_, index) => (
                     <TableRow 
                       key={index} 
@@ -215,60 +215,76 @@ export function VirtualizedTable<T>({
                       })}
                     </TableRow>
                   ))}
-                </div>
+                </>
               ) : (
                 // Virtualized rows with proper positioning
-                <div
-                  style={{
-                    position: 'relative',
-                    height: `${virtualizer.getTotalSize()}px`,
-                    zIndex: 1,
-                  }}
-                >
-                  {virtualizer.getVirtualItems().map((virtualRow) => {
-                    const item = data[virtualRow.index];
-                    return (
-                      <TableRow
-                        key={virtualRow.index}
-                        data-index={virtualRow.index}
-                        ref={virtualizer.measureElement}
-                        className={onRowClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
-                        onClick={() => onRowClick?.(item)}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: `${virtualRow.size}px`,
-                          transform: `translateY(${virtualRow.start}px)`,
-                          zIndex: 1,
-                          willChange: isScrolling ? 'transform' : 'auto',
-                          borderBottom: '1px solid hsl(var(--border))',
-                        }}
-                      >
-                        {columns.map((column) => {
-                          const config = getMergedColumnConfig(column);
-                          const content = renderCellContent(column, item);
+                <>
+                  {/* Spacer element for virtualization */}
+                  <TableRow 
+                    style={{ 
+                      height: `${virtualizer.getTotalSize()}px`,
+                      position: 'relative',
+                      zIndex: 1,
+                    }}
+                  >
+                    <TableCell colSpan={columns.length} style={{ padding: 0, border: 'none' }}>
+                      {/* Virtualized rows container */}
+                      <div style={{ position: 'relative' }}>
+                        {virtualizer.getVirtualItems().map((virtualRow) => {
+                          const item = data[virtualRow.index];
                           return (
-                            <TableCell 
-                              key={column.key} 
-                              className={getCellClasses(config, column.className)}
-                              style={getCellStyles(config)}
+                            <div
+                              key={virtualRow.index}
+                              data-index={virtualRow.index}
+                              ref={virtualizer.measureElement}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: `${virtualRow.size}px`,
+                                transform: `translateY(${virtualRow.start}px)`,
+                                zIndex: 1,
+                                willChange: isScrolling ? 'transform' : 'auto',
+                                borderBottom: '1px solid hsl(var(--border))',
+                              }}
                             >
-                              {config.truncate ? (
-                                <div className="truncate" title={content?.toString()}>
-                                  {content}
-                                </div>
-                              ) : (
-                                content
-                              )}
-                            </TableCell>
+                              <table style={{ width: '100%', height: '100%', borderCollapse: 'collapse' }}>
+                                <tbody>
+                                  <tr
+                                    className={onRowClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
+                                    onClick={() => onRowClick?.(item)}
+                                    style={{ height: '100%' }}
+                                  >
+                                    {columns.map((column) => {
+                                      const config = getMergedColumnConfig(column);
+                                      const content = renderCellContent(column, item);
+                                      return (
+                                        <td 
+                                          key={column.key} 
+                                          className={getCellClasses(config, column.className)}
+                                          style={getCellStyles(config)}
+                                        >
+                                          {config.truncate ? (
+                                            <div className="truncate" title={content?.toString()}>
+                                              {content}
+                                            </div>
+                                          ) : (
+                                            content
+                                          )}
+                                        </td>
+                                      );
+                                    })}
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
                           );
                         })}
-                      </TableRow>
-                    );
-                  })}
-                </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                </>
               )}
             </TableBody>
           </TableVirtualized>
