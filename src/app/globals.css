@@ -242,46 +242,46 @@
 }
 
 /* Custom scrollbar styles for mobile-friendly horizontal scrolling */
-.scrollbar-thin {
+.custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #d1d5db #f3f4f6;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
+.custom-scrollbar::-webkit-scrollbar {
   height: 8px;
   width: 8px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-track {
+.custom-scrollbar::-webkit-scrollbar-track {
   background: #f3f4f6;
   border-radius: 9999px;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
+.custom-scrollbar::-webkit-scrollbar-thumb {
   background: #d1d5db;
   border-radius: 9999px;
   border: 2px solid #f3f4f6;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #9ca3af;
 }
 
 /* Dark mode scrollbar styles */
-.dark .scrollbar-thin {
+.dark .custom-scrollbar {
   scrollbar-color: #4b5563 #1f2937;
 }
 
-.dark .scrollbar-thin::-webkit-scrollbar-track {
+.dark .custom-scrollbar::-webkit-scrollbar-track {
   background: #1f2937;
 }
 
-.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #4b5563;
   border: 2px solid #1f2937;
 }
 
-.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
 
@@ -292,36 +292,36 @@
 
 /* Enhanced mobile table scrolling */
 @media (max-width: 768px) {
-  .scrollbar-thin {
+  .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: #9ca3af #f9fafb;
   }
   
-  .scrollbar-thin::-webkit-scrollbar {
+  .custom-scrollbar::-webkit-scrollbar {
     height: 6px;
     width: 6px;
   }
   
-  .scrollbar-thin::-webkit-scrollbar-track {
+  .custom-scrollbar::-webkit-scrollbar-track {
     background: #f9fafb;
     border-radius: 9999px;
   }
   
-  .scrollbar-thin::-webkit-scrollbar-thumb {
+  .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #9ca3af;
     border-radius: 9999px;
     border: 1px solid #f9fafb;
   }
   
-  .dark .scrollbar-thin {
+  .dark .custom-scrollbar {
     scrollbar-color: #6b7280 #111827;
   }
   
-  .dark .scrollbar-thin::-webkit-scrollbar-track {
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
     background: #111827;
   }
   
-  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #6b7280;
     border: 1px solid #111827;
   }
@@ -341,7 +341,7 @@
 
 /* Mobile-first table container with enhanced scrolling */
 .table-container-mobile {
-  @apply overflow-x-auto scrollbar-thin touch-pan-x;
+  overflow-x: auto;
   max-width: 100%;
   -webkit-overflow-scrolling: touch;
 }

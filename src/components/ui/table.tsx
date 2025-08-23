@@ -8,7 +8,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto scrollbar-thin touch-pan-x table-container-mobile"
+      className="relative w-full overflow-x-auto custom-scrollbar touch-pan-x table-container-mobile"
     >
       <table
         data-slot="table"
@@ -33,7 +33,7 @@ function TableWhite({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto scrollbar-thin touch-pan-x table-container-mobile"
+      className="relative w-full overflow-x-auto custom-scrollbar touch-pan-x table-container-mobile"
     >
       <table
         data-slot="table"
