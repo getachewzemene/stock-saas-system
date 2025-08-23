@@ -152,7 +152,7 @@ export function VirtualizedTable<T>({
         {/* Table Container with proper virtualization */}
         <div 
           ref={tableContainerRef}
-          className={`border-b border-border overflow-auto relative ${data.length === 0 ? 'overflow-x-hidden' : ''}`}
+          className={`border-b border-border overflow-auto relative scrollbar-thin touch-pan-x table-container-mobile ${data.length === 0 ? 'overflow-x-hidden' : ''}`}
           style={{ 
             height: `${Math.min(data.length * estimatedItemSize + rowHeight + 16, 600)}px`,
             maxHeight: '70vh'

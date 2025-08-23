@@ -8,11 +8,11 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full overflow-x-auto scrollbar-thin touch-pan-x table-container-mobile"
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm bg-transparent border border-border rounded-lg shadow-sm", className)}
+        className={cn("w-full caption-bottom text-sm bg-transparent border border-border rounded-lg shadow-sm min-w-full table-mobile-min-width", className)}
         {...props}
       />
     </div>
@@ -33,11 +33,11 @@ function TableWhite({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full overflow-x-auto scrollbar-thin touch-pan-x table-container-mobile"
     >
       <table
         data-slot="table"
-        className={cn("w-full caption-bottom text-sm bg-transparent border border-border rounded-lg shadow-sm", className)}
+        className={cn("w-full caption-bottom text-sm bg-transparent border border-border rounded-lg shadow-sm min-w-full table-mobile-min-width", className)}
         {...props}
       />
     </div>

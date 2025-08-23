@@ -240,3 +240,126 @@
 .page-transition-exit-active {
   opacity: 0;
 }
+
+/* Custom scrollbar styles for mobile-friendly horizontal scrolling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 9999px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 9999px;
+  border: 2px solid #f3f4f6;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Dark mode scrollbar styles */
+.dark .scrollbar-thin {
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border: 2px solid #1f2937;
+}
+
+.dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Touch-friendly scrolling for mobile devices */
+.touch-pan-x {
+  touch-action: pan-x pinch-zoom;
+}
+
+/* Enhanced mobile table scrolling */
+@media (max-width: 768px) {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #9ca3af #f9fafb;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 9999px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #9ca3af;
+    border-radius: 9999px;
+    border: 1px solid #f9fafb;
+  }
+  
+  .dark .scrollbar-thin {
+    scrollbar-color: #6b7280 #111827;
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-track {
+    background: #111827;
+  }
+  
+  .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border: 1px solid #111827;
+  }
+}
+
+/* Hide scrollbar for desktop but keep functionality */
+@media (min-width: 769px) {
+  .scrollbar-hide-desktop {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  
+  .scrollbar-hide-desktop::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Mobile-first table container with enhanced scrolling */
+.table-container-mobile {
+  @apply overflow-x-auto scrollbar-thin touch-pan-x;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure tables maintain minimum width for mobile */
+.table-mobile-min-width {
+  min-width: 600px;
+}
+
+/* Mobile-specific table improvements */
+@media (max-width: 640px) {
+  .table-mobile-min-width {
+    min-width: 500px;
+  }
+}
+
+@media (max-width: 480px) {
+  .table-mobile-min-width {
+    min-width: 400px;
+  }
+}
