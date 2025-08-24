@@ -369,7 +369,7 @@
 }
 
 .structured-table tr:nth-child(even) {
-  @apply bg-gray-25 dark:bg-gray-900;
+  @apply bg-gray-100 dark:bg-gray-900;
 }
 
 .structured-table tr:nth-child(even):hover {

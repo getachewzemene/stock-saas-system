@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { 
-  ShoppingCart, 
+  FileText, 
   Plus, 
   Search, 
   Filter,
@@ -18,117 +18,123 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  RotateCcw
+  Truck,
+  Package
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
 
-// Mock sales data
-const mockSales = [
+// Mock orders data
+const mockOrders = [
   {
     id: "1",
-    orderNumber: "SAL-001",
-    customer: "John Doe",
-    date: "2024-01-15",
-    status: "completed",
-    total: 150.00,
+    orderNumber: "ORD-001",
+    customer: "Alice Cooper",
+    orderDate: "2024-01-15",
+    expectedDelivery: "2024-01-18",
+    status: "confirmed",
+    total: 250.00,
     paymentStatus: "paid"
   },
   {
     id: "2", 
-    orderNumber: "SAL-002",
-    customer: "Jane Smith",
-    date: "2024-01-14",
-    status: "pending",
-    total: 89.99,
-    paymentStatus: "unpaid"
+    orderNumber: "ORD-002",
+    customer: "Bob Wilson",
+    orderDate: "2024-01-14",
+    expectedDelivery: "2024-01-17",
+    status: "processing",
+    total: 175.50,
+    paymentStatus: "paid"
   },
   {
     id: "3",
-    orderNumber: "SAL-003", 
-    customer: "Bob Johnson",
-    date: "2024-01-13",
-    status: "cancelled",
-    total: 200.00,
-    paymentStatus: "refunded"
+    orderNumber: "ORD-003", 
+    customer: "Carol Davis",
+    orderDate: "2024-01-13",
+    expectedDelivery: "2024-01-16",
+    status: "shipped",
+    total: 320.00,
+    paymentStatus: "paid"
   }
 ];
 
 const statusColors = {
-  completed: "bg-green-100 text-green-800",
   pending: "bg-yellow-100 text-yellow-800",
+  confirmed: "bg-blue-100 text-blue-800",
+  processing: "bg-purple-100 text-purple-800",
+  shipped: "bg-indigo-100 text-indigo-800",
+  delivered: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800"
 };
 
 const paymentStatusColors = {
   paid: "bg-green-100 text-green-800",
   unpaid: "bg-red-100 text-red-800",
-  partiallyPaid: "bg-yellow-100 text-yellow-800",
-  refunded: "bg-gray-100 text-gray-800"
+  partiallyPaid: "bg-yellow-100 text-yellow-800"
 };
 
-export default function SalesPage() {
+export default function OrdersPage() {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const filteredSales = mockSales.filter(sale => {
-    const matchesSearch = sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         sale.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || sale.status === statusFilter;
+  const filteredOrders = mockOrders.filter(order => {
+    const matchesSearch = order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   return (
     <LayoutWrapper 
-      title={t('sales.title')} 
-      subtitle={t('sales.subtitle')}
+      title={t('orders.title')} 
+      subtitle={t('orders.subtitle')}
       showNewButton={true}
-      onNewClick={() => console.log("New sale clicked")}
+      onNewClick={() => console.log("New order clicked")}
     >
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
-              <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">1,234</div>
-              <p className="text-xs text-muted-foreground">+12% from last month</p>
+              <div className="text-2xl font-bold">2,847</div>
+              <p className="text-xs text-muted-foreground">+15% from last month</p>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">To Ship</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$45,231</div>
-              <p className="text-xs text-muted-foreground">+8% from last month</p>
+              <div className="text-2xl font-bold">45</div>
+              <p className="text-xs text-muted-foreground">Ready for fulfillment</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">In Transit</CardTitle>
+              <Truck className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">23</div>
-              <p className="text-xs text-muted-foreground">Requires attention</p>
+              <p className="text-xs text-muted-foreground">On the way</p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Avg. Order Value</CardTitle>
-              <RotateCcw className="h-4 w-4 text-muted-foreground" />
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">$89.50</div>
-              <p className="text-xs text-muted-foreground">+3% from last month</p>
+              <div className="text-2xl font-bold">$156.80</div>
+              <p className="text-xs text-muted-foreground">+5% from last month</p>
             </CardContent>
           </Card>
         </div>
@@ -136,15 +142,15 @@ export default function SalesPage() {
         {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('sales.salesHistory')}</CardTitle>
-            <CardDescription>View and manage all sales transactions</CardDescription>
+            <CardTitle>{t('orders.orderHistory')}</CardTitle>
+            <CardDescription>View and manage all customer orders</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
-                  placeholder={t('sales.searchSales')}
+                  placeholder={t('orders.searchOrders')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -156,36 +162,39 @@ export default function SalesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="confirmed">Confirmed</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
+                  <SelectItem value="shipped">Shipped</SelectItem>
+                  <SelectItem value="delivered">Delivered</SelectItem>
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {/* Sales Table */}
+            {/* Orders Table */}
             <div className="rounded-md border">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b bg-gray-50/50">
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('sales.orderNumber')}
+                        {t('orders.orderNumber')}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('sales.customer')}
+                        {t('orders.customer')}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('sales.date')}
+                        {t('orders.orderDate')}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('sales.status')}
+                        {t('orders.expectedDelivery')}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('sales.paymentStatus')}
+                        {t('orders.status')}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {t('sales.total')}
+                        {t('orders.total')}
                       </th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         {t('common.actions')}
@@ -193,29 +202,27 @@ export default function SalesPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {filteredSales.map((sale) => (
-                      <tr key={sale.id} className="hover:bg-gray-50">
+                    {filteredOrders.map((order) => (
+                      <tr key={order.id} className="hover:bg-gray-50">
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                          {sale.orderNumber}
+                          {order.orderNumber}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {sale.customer}
+                          {order.customer}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {sale.date}
+                          {order.orderDate}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {order.expectedDelivery}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
-                          <Badge className={statusColors[sale.status as keyof typeof statusColors]}>
-                            {sale.status.charAt(0).toUpperCase() + sale.status.slice(1)}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-4 whitespace-nowrap">
-                          <Badge className={paymentStatusColors[sale.paymentStatus as keyof typeof paymentStatusColors]}>
-                            {sale.paymentStatus.charAt(0).toUpperCase() + sale.paymentStatus.slice(1)}
+                          <Badge className={statusColors[order.status as keyof typeof statusColors]}>
+                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                           </Badge>
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ${sale.total.toFixed(2)}
+                          ${order.total.toFixed(2)}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex gap-2">
