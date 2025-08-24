@@ -9,6 +9,9 @@ import {
   DropdownMenuItem, 
   DropdownMenuLabel, 
   DropdownMenuSeparator, 
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { 
@@ -26,8 +29,11 @@ import {
   Monitor,
   Globe,
   Menu,
-  Bell
+  Bell,
+  Settings,
+  MoreVertical
 } from "lucide-react";
+import { PWAInstallButton, PWAStatusIndicator } from "@/components/pwa/pwa-install-button";
 import { 
   Tooltip,
   TooltipContent,
@@ -97,44 +103,146 @@ export function Header({ title, subtitle, showNewButton = false, onNewClick }: H
           </div>
         </div>
         
-        <div className="flex items-center space-x-4">
-          <div className="relative">
+        <div className="flex items-center space-x-2 sm:space-x-4">
+          {/* PWA Status Indicator */}
+          <div className="hidden lg:block">
+            <PWAStatusIndicator />
+          </div>
+          
+          {/* PWA Install Button */}
+          <div className="hidden md:block">
+            <PWAInstallButton />
+          </div>
+          
+          {/* Search - hidden on mobile, shown on tablet+ */}
+          <div className="hidden sm:block relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder={t('common.search')}
-              className="pl-10 w-64"
+              className="pl-10 w-32 sm:w-48 md:w-64"
             />
           </div>
           
+          {/* Mobile search button */}
+          <div className="sm:hidden">
+            <Button variant="ghost" size="sm" onClick={() => {
+              // Toggle mobile search or navigate to search page
+              router.push("/search");
+            }}>
+              <Search className="w-4 h-4" />
+            </Button>
+          </div>
+          
           {showNewButton && (
-            <Button onClick={onNewClick}>
+            <Button onClick={onNewClick} className="hidden sm:flex">
               <Plus className="w-4 h-4 mr-2" />
               {t('common.new')}
             </Button>
           )}
           
-          {/* Language Switcher */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Select value={language} onValueChange={(value: any) => setLanguage(value)}>
-                <SelectTrigger className="w-32">
-                  <Globe className="w-4 h-4 mr-2" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map((lang) => (
-                    <SelectItem key={lang.code} value={lang.code}>
-                      <span className="mr-2">{lang.flag}</span>
-                      {lang.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Change Language</p>
-            </TooltipContent>
-          </Tooltip>
+          {/* Mobile New button */}
+          {showNewButton && (
+            <Button onClick={onNewClick} size="sm" className="sm:hidden">
+              <Plus className="w-4 h-4" />
+            </Button>
+          )}
+          
+          {/* Language Switcher - hidden on mobile, shown on tablet+ */}
+          <div className="hidden md:block">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Select value={language} onValueChange={(value: any) => setLanguage(value)}>
+                  <SelectTrigger className="w-28 sm:w-32">
+                    <Globe className="w-4 h-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {languages.map((lang) => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        <span className="mr-2">{lang.flag}</span>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Change Language</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          {/* Mobile Menu - Language, Theme, Settings */}
+          <div className="md:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Mobile Options</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                
+                {/* Language Selector */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Globe className="w-4 h-4 mr-2" />
+                    Language
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {languages.map((lang) => (
+                      <DropdownMenuItem
+                        key={lang.code}
+                        onClick={() => setLanguage(lang.code)}
+                        className={language === lang.code ? "bg-gray-100 dark:bg-gray-800" : ""}
+                      >
+                        <span className="mr-2">{lang.flag}</span>
+                        {lang.name}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                
+                <DropdownMenuSeparator />
+                
+                {/* Theme Selector */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    {resolvedTheme === 'light' ? (
+                      <Sun className="w-4 h-4 mr-2" />
+                    ) : (
+                      <Moon className="w-4 h-4 mr-2" />
+                    )}
+                    Theme
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {themes.map((themeOption) => {
+                      const Icon = themeOption.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={themeOption.value}
+                          onClick={() => setTheme(themeOption.value)}
+                          className={theme === themeOption.value ? "bg-gray-100 dark:bg-gray-800" : ""}
+                        >
+                          <Icon className="w-4 h-4 mr-2" />
+                          {themeOption.label}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                
+                <DropdownMenuSeparator />
+                
+                {/* Settings */}
+                <DropdownMenuItem onClick={() => router.push("/settings")}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  Settings
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
 
           {/* Notification Icon */}
           <Tooltip>
@@ -156,41 +264,44 @@ export function Header({ title, subtitle, showNewButton = false, onNewClick }: H
             </TooltipContent>
           </Tooltip>
 
-          {/* Theme Toggle */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    {resolvedTheme === 'light' ? (
-                      <Sun className="w-4 h-4" />
-                    ) : (
-                      <Moon className="w-4 h-4" />
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {themes.map((themeOption) => {
-                    const Icon = themeOption.icon;
-                    return (
-                      <DropdownMenuItem
-                        key={themeOption.value}
-                        onClick={() => setTheme(themeOption.value)}
-                        className={theme === themeOption.value ? "bg-gray-100 dark:bg-gray-800" : ""}
-                      >
-                        <Icon className="w-4 h-4 mr-2" />
-                        {themeOption.label}
-                      </DropdownMenuItem>
-                    );
-                  })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Change Theme</p>
-            </TooltipContent>
-          </Tooltip>
+          {/* Theme Toggle - hidden on mobile, shown on tablet+ */}
+          <div className="hidden md:block">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      {resolvedTheme === 'light' ? (
+                        <Sun className="w-4 h-4" />
+                      ) : (
+                        <Moon className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {themes.map((themeOption) => {
+                      const Icon = themeOption.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={themeOption.value}
+                          onClick={() => setTheme(themeOption.value)}
+                          className={theme === themeOption.value ? "bg-gray-100 dark:bg-gray-800" : ""}
+                        >
+                          <Icon className="w-4 h-4 mr-2" />
+                          {themeOption.label}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Change Theme</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           
+          {/* User Menu */}
           <Tooltip>
             <TooltipTrigger asChild>
               <DropdownMenu>

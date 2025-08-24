@@ -22,7 +22,8 @@ import {
   TrendingUp,
   PieChart as PieChartIcon,
   Layers,
-  Box
+  Box,
+  MapPin
 } from "lucide-react";
 import { 
   Tooltip,
@@ -73,10 +74,10 @@ export function Sidebar({ className }: SidebarProps) {
       group: "inventory"
     },
     { 
-      name: t('nav.sales'), 
-      href: "/sales", 
-      icon: ShoppingCart,
-      group: "sales"
+      name: "Locations", 
+      href: "/locations", 
+      icon: MapPin,
+      group: "inventory"
     },
     { 
       name: t('nav.stock'), 
