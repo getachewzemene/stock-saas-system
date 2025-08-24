@@ -98,15 +98,9 @@ export function Sidebar({ className }: SidebarProps) {
       group: "inventory"
     },
     { 
-      name: t('nav.sales'), 
-      href: "/sales", 
+      name: t('nav.transactions'), 
+      href: "/transactions", 
       icon: ShoppingCart,
-      group: "sales"
-    },
-    { 
-      name: t('common.orders'), 
-      href: "/orders", 
-      icon: FileText,
       group: "sales"
     },
     { 

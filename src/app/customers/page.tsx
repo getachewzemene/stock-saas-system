@@ -8,6 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { 
   Users, 
   Plus, 
   Search, 
@@ -76,6 +87,20 @@ export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState(null);
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    totalSpent: "",
+    lastPurchase: "",
+    status: "active",
+    type: "regular",
+    notes: ""
+  });
 
   const filteredCustomers = mockCustomers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -85,12 +110,54 @@ export default function CustomersPage() {
     return matchesSearch && matchesStatus && matchesType;
   });
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Here you would typically make an API call
+    console.log("Customer form submitted:", formData);
+    
+    // For demo purposes, just close the dialog and reset form
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
+  const handleEdit = (customer: any) => {
+    setEditingCustomer(customer);
+    setFormData({
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      address: customer.address,
+      totalSpent: customer.totalSpent.toString(),
+      lastPurchase: customer.lastPurchase,
+      status: customer.status,
+      type: customer.type,
+      notes: ""
+    });
+    setIsDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      totalSpent: "",
+      lastPurchase: "",
+      status: "active",
+      type: "regular",
+      notes: ""
+    });
+    setEditingCustomer(null);
+  };
+
   return (
     <LayoutWrapper 
       title={t('customers.title')} 
       subtitle={t('customers.subtitle')}
       showNewButton={true}
-      onNewClick={() => console.log("New customer clicked")}
+      onNewClick={() => setIsDialogOpen(true)}
     >
       <div className="space-y-6">
         {/* Stats Cards */}
@@ -262,7 +329,7 @@ export default function CustomersPage() {
                             <Button variant="ghost" size="sm">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleEdit(customer)}>
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="sm">
@@ -278,6 +345,137 @@ export default function CustomersPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Customers Modal */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingCustomer ? t('customers.editCustomer') : t('customers.addCustomer')}
+              </DialogTitle>
+              <DialogDescription>
+                {editingCustomer 
+                  ? t('customers.editCustomerDescription')
+                  : t('customers.createNewCustomer')
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">{t('customers.customerName')} *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    placeholder="Customer name"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t('common.email')} *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    placeholder="customer@example.com"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">{t('common.phone')} *</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    placeholder="+1 (555) 123-4567"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="totalSpent">{t('customers.totalSpent')}</Label>
+                  <Input
+                    id="totalSpent"
+                    type="number"
+                    step="0.01"
+                    value={formData.totalSpent}
+                    onChange={(e) => setFormData({...formData, totalSpent: e.target.value})}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="address">{t('customers.address')} *</Label>
+                <Textarea
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  placeholder="123 Main St, City, State 12345"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">{t('customers.status')} *</Label>
+                  <Select 
+                    value={formData.status} 
+                    onValueChange={(value) => setFormData({...formData, status: value})}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="active">{t('customers.active')}</SelectItem>
+                      <SelectItem value="inactive">{t('customers.inactive')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="type">{t('customers.customerType')} *</Label>
+                  <Select 
+                    value={formData.type} 
+                    onValueChange={(value) => setFormData({...formData, type: value})}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="regular">{t('customers.regular')}</SelectItem>
+                      <SelectItem value="vip">{t('customers.vip')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">{t('customers.notes')}</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  placeholder="Additional notes about the customer"
+                />
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  {t('common.cancel')}
+                </Button>
+                <Button type="submit">
+                  {editingCustomer ? t('common.update') : t('common.create')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </LayoutWrapper>
   );

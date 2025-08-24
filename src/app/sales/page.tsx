@@ -8,6 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { 
   ShoppingCart, 
   Plus, 
   Search, 
@@ -70,6 +81,18 @@ export default function SalesPage() {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingSale, setEditingSale] = useState(null);
+  
+  const [formData, setFormData] = useState({
+    orderNumber: "",
+    customer: "",
+    date: "",
+    status: "pending",
+    paymentStatus: "unpaid",
+    total: "",
+    notes: ""
+  });
 
   const filteredSales = mockSales.filter(sale => {
     const matchesSearch = sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -78,12 +101,50 @@ export default function SalesPage() {
     return matchesSearch && matchesStatus;
   });
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Here you would typically make an API call
+    console.log("Sale form submitted:", formData);
+    
+    // For demo purposes, just close the dialog and reset form
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
+  const handleEdit = (sale: any) => {
+    setEditingSale(sale);
+    setFormData({
+      orderNumber: sale.orderNumber,
+      customer: sale.customer,
+      date: sale.date,
+      status: sale.status,
+      paymentStatus: sale.paymentStatus,
+      total: sale.total.toString(),
+      notes: ""
+    });
+    setIsDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      orderNumber: "",
+      customer: "",
+      date: "",
+      status: "pending",
+      paymentStatus: "unpaid",
+      total: "",
+      notes: ""
+    });
+    setEditingSale(null);
+  };
+
   return (
     <LayoutWrapper 
       title={t('sales.title')} 
       subtitle={t('sales.subtitle')}
       showNewButton={true}
-      onNewClick={() => console.log("New sale clicked")}
+      onNewClick={() => setIsDialogOpen(true)}
     >
       <div className="space-y-6">
         {/* Stats Cards */}
@@ -222,7 +283,7 @@ export default function SalesPage() {
                             <Button variant="ghost" size="sm">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleEdit(sale)}>
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="sm">
@@ -238,6 +299,129 @@ export default function SalesPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sales Modal */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingSale ? t('sales.editSale') : t('sales.newSale')}
+              </DialogTitle>
+              <DialogDescription>
+                {editingSale 
+                  ? t('sales.editSaleDescription')
+                  : t('sales.createNewSale')
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="orderNumber">{t('sales.orderNumber')} *</Label>
+                  <Input
+                    id="orderNumber"
+                    value={formData.orderNumber}
+                    onChange={(e) => setFormData({...formData, orderNumber: e.target.value})}
+                    placeholder="SAL-001"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customer">{t('sales.customer')} *</Label>
+                  <Input
+                    id="customer"
+                    value={formData.customer}
+                    onChange={(e) => setFormData({...formData, customer: e.target.value})}
+                    placeholder="Customer name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="date">{t('sales.date')} *</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => setFormData({...formData, date: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="total">{t('sales.total')} *</Label>
+                  <Input
+                    id="total"
+                    type="number"
+                    step="0.01"
+                    value={formData.total}
+                    onChange={(e) => setFormData({...formData, total: e.target.value})}
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">{t('sales.status')} *</Label>
+                  <Select 
+                    value={formData.status} 
+                    onValueChange={(value) => setFormData({...formData, status: value})}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">{t('sales.pending')}</SelectItem>
+                      <SelectItem value="completed">{t('sales.completed')}</SelectItem>
+                      <SelectItem value="cancelled">{t('sales.cancelled')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="paymentStatus">{t('sales.paymentStatus')} *</Label>
+                  <Select 
+                    value={formData.paymentStatus} 
+                    onValueChange={(value) => setFormData({...formData, paymentStatus: value})}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paid">{t('sales.paid')}</SelectItem>
+                      <SelectItem value="unpaid">{t('sales.unpaid')}</SelectItem>
+                      <SelectItem value="partiallyPaid">{t('sales.partiallyPaid')}</SelectItem>
+                      <SelectItem value="refunded">{t('sales.refunded')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">{t('sales.notes')}</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  placeholder="Additional notes about the sale"
+                />
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  {t('common.cancel')}
+                </Button>
+                <Button type="submit">
+                  {editingSale ? t('common.update') : t('common.create')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </LayoutWrapper>
   );

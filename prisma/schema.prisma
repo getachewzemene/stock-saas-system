@@ -50,9 +50,10 @@ model User {
   updatedAt DateTime @updatedAt
 
   // Relations
-  sales     Sale[]
-  stockLogs StockLog[]
-  transfers Transfer[]
+  sales       Sale[]
+  transactions Transaction[]
+  stockLogs   StockLog[]
+  transfers   Transfer[]
 
   @@map("users")
 }
@@ -79,11 +80,12 @@ model Location {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  stockItems StockItem[]
+  stockItems    StockItem[]
   transfersFrom Transfer[] @relation("TransferFrom")
   transfersTo   Transfer[] @relation("TransferTo")
-  sales     Sale[]
-  stockLogs StockLog[]
+  sales         Sale[]
+  transactions  Transaction[]
+  stockLogs     StockLog[]
 
   @@map("locations")
 }
@@ -106,13 +108,14 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  stockItems StockItem[]
-  saleItems  SaleItem[]
-  batches    Batch[]
-  alerts     Alert[]
-  transferItems TransferItem[]
-  stockLogs StockLog[]
+  category       Category       @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  stockItems     StockItem[]
+  saleItems      SaleItem[]
+  transactionItems TransactionItem[]
+  batches        Batch[]
+  alerts         Alert[]
+  transferItems  TransferItem[]
+  stockLogs      StockLog[]
 
   @@map("products")
 }
@@ -128,11 +131,12 @@ model Batch {
   updatedAt   DateTime @updatedAt
 
   // Relations
-  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  stockItems StockItem[]
-  saleItems  SaleItem[]
-  transferItems TransferItem[]
-  stockLogs StockLog[]
+  product         Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockItems      StockItem[]
+  saleItems       SaleItem[]
+  transactionItems TransactionItem[]
+  transferItems   TransferItem[]
+  stockLogs       StockLog[]
 
   @@unique([productId, batchNumber])
   @@map("batches")
@@ -182,6 +186,36 @@ model Sale {
   @@map("sales")
 }
 
+model Transaction {
+  id                    String   @id @default(cuid())
+  invoiceNo             String   @unique
+  type                  String   // 'sale' or 'order'
+  customerId            String?
+  customerName          String?
+  customerEmail         String?
+  customerPhone         String?
+  customerAddress       String?
+  totalAmount           Float
+  discount              Float    @default(0)
+  tax                   Float    @default(0)
+  finalAmount           Float
+  status                String   @default("pending")
+  paymentStatus         String   @default("unpaid")
+  userId                String
+  locationId            String
+  notes                 String?
+  estimatedDeliveryDate DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  user     User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location         @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  items    TransactionItem[]
+
+  @@map("transactions")
+}
+
 model SaleItem {
   id          String   @id @default(cuid())
   saleId      String
@@ -199,6 +233,25 @@ model SaleItem {
   batch   Batch?  @relation(fields: [batchId], references: [id], onDelete: SetNull)
 
   @@map("sale_items")
+}
+
+model TransactionItem {
+  id            String   @id @default(cuid())
+  transactionId String
+  productId     String
+  quantity      Int
+  price         Float
+  discount      Float    @default(0)
+  total         Float
+  batchId       String?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  batch       Batch?      @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@map("transaction_items")
 }
 
 model Transfer {

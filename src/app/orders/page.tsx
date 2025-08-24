@@ -8,6 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { 
   FileText, 
   Plus, 
   Search, 
@@ -76,6 +87,19 @@ export default function OrdersPage() {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+  
+  const [formData, setFormData] = useState({
+    orderNumber: "",
+    customer: "",
+    orderDate: "",
+    expectedDelivery: "",
+    status: "pending",
+    total: "",
+    paymentStatus: "unpaid",
+    notes: ""
+  });
 
   const filteredOrders = mockOrders.filter(order => {
     const matchesSearch = order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -84,12 +108,52 @@ export default function OrdersPage() {
     return matchesSearch && matchesStatus;
   });
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Here you would typically make an API call
+    console.log("Order form submitted:", formData);
+    
+    // For demo purposes, just close the dialog and reset form
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
+  const handleEdit = (order: any) => {
+    setEditingOrder(order);
+    setFormData({
+      orderNumber: order.orderNumber,
+      customer: order.customer,
+      orderDate: order.orderDate,
+      expectedDelivery: order.expectedDelivery,
+      status: order.status,
+      total: order.total.toString(),
+      paymentStatus: order.paymentStatus,
+      notes: ""
+    });
+    setIsDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      orderNumber: "",
+      customer: "",
+      orderDate: "",
+      expectedDelivery: "",
+      status: "pending",
+      total: "",
+      paymentStatus: "unpaid",
+      notes: ""
+    });
+    setEditingOrder(null);
+  };
+
   return (
     <LayoutWrapper 
       title={t('orders.title')} 
       subtitle={t('orders.subtitle')}
       showNewButton={true}
-      onNewClick={() => console.log("New order clicked")}
+      onNewClick={() => setIsDialogOpen(true)}
     >
       <div className="space-y-6">
         {/* Stats Cards */}
@@ -229,7 +293,7 @@ export default function OrdersPage() {
                             <Button variant="ghost" size="sm">
                               <Eye className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm">
+                            <Button variant="ghost" size="sm" onClick={() => handleEdit(order)}>
                               <Edit className="h-4 w-4" />
                             </Button>
                             <Button variant="ghost" size="sm">
@@ -245,6 +309,144 @@ export default function OrdersPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Orders Modal */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="max-w-2xl sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingOrder ? t('orders.editOrder') : t('orders.newOrder')}
+              </DialogTitle>
+              <DialogDescription>
+                {editingOrder 
+                  ? t('orders.editOrderDescription')
+                  : t('orders.createNewOrder')
+                }
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="orderNumber">{t('orders.orderNumber')} *</Label>
+                  <Input
+                    id="orderNumber"
+                    value={formData.orderNumber}
+                    onChange={(e) => setFormData({...formData, orderNumber: e.target.value})}
+                    placeholder="ORD-001"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="customer">{t('orders.customer')} *</Label>
+                  <Input
+                    id="customer"
+                    value={formData.customer}
+                    onChange={(e) => setFormData({...formData, customer: e.target.value})}
+                    placeholder="Customer name"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="orderDate">{t('orders.orderDate')} *</Label>
+                  <Input
+                    id="orderDate"
+                    type="date"
+                    value={formData.orderDate}
+                    onChange={(e) => setFormData({...formData, orderDate: e.target.value})}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="expectedDelivery">{t('orders.expectedDelivery')} *</Label>
+                  <Input
+                    id="expectedDelivery"
+                    type="date"
+                    value={formData.expectedDelivery}
+                    onChange={(e) => setFormData({...formData, expectedDelivery: e.target.value})}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="status">{t('orders.status')} *</Label>
+                  <Select 
+                    value={formData.status} 
+                    onValueChange={(value) => setFormData({...formData, status: value})}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">{t('orders.pending')}</SelectItem>
+                      <SelectItem value="confirmed">{t('orders.confirmed')}</SelectItem>
+                      <SelectItem value="processing">{t('orders.processing')}</SelectItem>
+                      <SelectItem value="shipped">{t('orders.shipped')}</SelectItem>
+                      <SelectItem value="delivered">{t('orders.delivered')}</SelectItem>
+                      <SelectItem value="cancelled">{t('orders.cancelled')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="total">{t('orders.total')} *</Label>
+                  <Input
+                    id="total"
+                    type="number"
+                    step="0.01"
+                    value={formData.total}
+                    onChange={(e) => setFormData({...formData, total: e.target.value})}
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="paymentStatus">{t('orders.paymentStatus')} *</Label>
+                  <Select 
+                    value={formData.paymentStatus} 
+                    onValueChange={(value) => setFormData({...formData, paymentStatus: value})}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paid">{t('orders.paid')}</SelectItem>
+                      <SelectItem value="unpaid">{t('orders.unpaid')}</SelectItem>
+                      <SelectItem value="partiallyPaid">{t('orders.partiallyPaid')}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">{t('orders.orderNotes')}</Label>
+                <Textarea
+                  id="notes"
+                  value={formData.notes}
+                  onChange={(e) => setFormData({...formData, notes: e.target.value})}
+                  placeholder="Additional notes about the order"
+                />
+              </div>
+
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                  {t('common.cancel')}
+                </Button>
+                <Button type="submit">
+                  {editingOrder ? t('common.update') : t('common.create')}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
     </LayoutWrapper>
   );
