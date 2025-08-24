@@ -181,6 +181,7 @@ export function Sidebar({ className }: SidebarProps) {
                 className={cn(
                   "flex items-center w-full px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   level > 0 && "ml-4",
+                  isCollapsed && "justify-center px-2",
                   isExpanded
                     ? resolvedTheme === 'dark'
                       ? "bg-gray-800 text-white"
@@ -190,7 +191,7 @@ export function Sidebar({ className }: SidebarProps) {
                       : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                 )}
               >
-                <Icon className={cn("w-4 h-4 text-yellow-600", level === 0 && !isCollapsed ? "mr-3" : "")} />
+                <Icon className={cn("w-4 h-4 text-yellow-600", level === 0 && !isCollapsed ? "mr-3" : "mx-auto")} />
                 {!isCollapsed && (
                   <>
                     <span className="flex-1 text-left">{item.name}</span>
@@ -203,11 +204,9 @@ export function Sidebar({ className }: SidebarProps) {
                 )}
               </button>
             </TooltipTrigger>
-            {isCollapsed && (
-              <TooltipContent side="right" className="hidden lg:block">
-                <p>{item.name}</p>
-              </TooltipContent>
-            )}
+            <TooltipContent side="right" className={cn("hidden lg:block", !isCollapsed && "invisible")}>
+              <p>{item.name}</p>
+            </TooltipContent>
           </Tooltip>
           
           {isExpanded && !isCollapsed && (
@@ -230,6 +229,7 @@ export function Sidebar({ className }: SidebarProps) {
             className={cn(
               "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
               level > 0 && "ml-4",
+              isCollapsed && "justify-center px-2",
               isActive
                 ? resolvedTheme === 'dark'
                   ? "bg-gray-800 text-white"
@@ -243,7 +243,7 @@ export function Sidebar({ className }: SidebarProps) {
               closeMobile();
             }}
           >
-            <Icon className={cn("w-4 h-4", level === 0 && !isCollapsed ? "mr-3" : "")} />
+            <Icon className={cn("w-4 h-4", level === 0 && !isCollapsed ? "mr-3" : "mx-auto")} />
             {!isCollapsed && (
               <>
                 <span className="flex-1">{item.name}</span>
@@ -256,11 +256,9 @@ export function Sidebar({ className }: SidebarProps) {
             )}
           </Link>
         </TooltipTrigger>
-        {isCollapsed && (
-          <TooltipContent side="right" className="hidden lg:block">
-            <p>{item.name}</p>
-          </TooltipContent>
-        )}
+        <TooltipContent side="right" className={cn("hidden lg:block", !isCollapsed && "invisible")}>
+          <p>{item.name}</p>
+        </TooltipContent>
       </Tooltip>
     );
   };
@@ -289,7 +287,7 @@ export function Sidebar({ className }: SidebarProps) {
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent side="right" className="hidden lg:block">
+              <TooltipContent side="right" className={cn("hidden lg:block", !isCollapsed && "invisible")}>
                 <p>{isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}</p>
               </TooltipContent>
             </Tooltip>
@@ -297,7 +295,10 @@ export function Sidebar({ className }: SidebarProps) {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+        <nav className={cn(
+          "flex-1 px-3 py-4 space-y-4 overflow-y-auto",
+          isCollapsed && "px-2"
+        )}>
           {Object.entries(groupedNavigation).map(([group, items]) => (
             <div key={group} className="space-y-1">
               {!isCollapsed && (
