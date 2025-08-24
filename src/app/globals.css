@@ -351,15 +351,106 @@
   min-width: 600px;
 }
 
-/* Mobile-specific table improvements */
+/* Custom styles for structured tables */
+.structured-table {
+  @apply border-collapse border border-gray-300 dark:border-gray-600;
+}
+
+.structured-table th {
+  @apply bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.structured-table td {
+  @apply border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100;
+}
+
+.structured-table tr:hover {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+.structured-table tr:nth-child(even) {
+  @apply bg-gray-25 dark:bg-gray-900;
+}
+
+.structured-table tr:nth-child(even):hover {
+  @apply bg-gray-50 dark:bg-gray-800;
+}
+
+/* Enhanced table cell styling */
+.table-cell-name {
+  @apply py-3 px-4 align-middle;
+}
+
+.table-cell-address {
+  @apply py-3 px-4 align-middle max-w-xs;
+}
+
+.table-cell-number {
+  @apply py-3 px-4 align-middle text-center font-medium;
+}
+
+.table-cell-actions {
+  @apply py-3 px-4 align-middle text-right;
+}
+
+/* Table header styling */
+.table-header-location {
+  @apply w-[250px] min-w-[200px] max-w-[300px];
+}
+
+.table-header-address {
+  @apply w-[300px] min-w-[250px] max-w-[400px];
+}
+
+.table-header-number {
+  @apply w-[120px] min-w-[100px] max-w-[150px];
+}
+
+.table-header-actions {
+  @apply w-[80px] min-w-[60px] max-w-[100px];
+}
+
+/* Mobile-friendly table container with enhanced scrolling */
 @media (max-width: 640px) {
   .table-mobile-min-width {
     min-width: 500px;
+  }
+  
+  .table-header-location {
+    @apply w-[200px] min-w-[180px] max-w-[250px];
+  }
+  
+  .table-header-address {
+    @apply w-[250px] min-w-[200px] max-w-[300px];
+  }
+  
+  .table-header-number {
+    @apply w-[100px] min-w-[80px] max-w-[120px];
+  }
+  
+  .table-header-actions {
+    @apply w-[60px] min-w-[50px] max-w-[80px];
   }
 }
 
 @media (max-width: 480px) {
   .table-mobile-min-width {
     min-width: 400px;
+  }
+  
+  .table-header-location {
+    @apply w-[150px] min-w-[120px] max-w-[200px];
+  }
+  
+  .table-header-address {
+    @apply w-[200px] min-w-[150px] max-w-[250px];
+  }
+  
+  .table-header-number {
+    @apply w-[80px] min-w-[60px] max-w-[100px];
+  }
+  
+  .table-header-actions {
+    @apply w-[50px] min-w-[40px] max-w-[60px];
   }
 }

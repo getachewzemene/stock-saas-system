@@ -46,7 +46,14 @@ import {
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
-import { VirtualizedTable } from "@/components/ui/virtualized-table";
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from "@/components/ui/table";
 
 interface Location {
   id: string;
@@ -190,90 +197,6 @@ export default function LocationsPage() {
   const totalLocations = locations.length;
   const totalStockItems = locations.reduce((sum, loc) => sum + getStockItemsCount(loc), 0);
   const totalTransfers = locations.reduce((sum, loc) => sum + getTotalTransfersCount(loc), 0);
-
-  const columns = [
-    {
-      key: "name",
-      header: "Location Name",
-      sortable: true,
-      render: (location: Location) => (
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
-            <MapPin className="w-4 h-4 text-blue-600" />
-          </div>
-          <div>
-            <div className="font-medium">{location.name}</div>
-            {location.description && (
-              <div className="text-sm text-gray-500">{location.description}</div>
-            )}
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: "address",
-      header: "Address",
-      sortable: false,
-      render: (location: Location) => (
-        <div className="text-sm">
-          {location.address || (
-            <span className="text-gray-400">No address provided</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      key: "stockItems",
-      header: "Stock Items",
-      sortable: true,
-      render: (location: Location) => (
-        <div className="flex items-center space-x-2">
-          <Package className="w-4 h-4 text-green-600" />
-          <span className="font-medium">{getStockItemsCount(location)}</span>
-        </div>
-      ),
-    },
-    {
-      key: "transfers",
-      header: "Transfers",
-      sortable: true,
-      render: (location: Location) => (
-        <div className="flex items-center space-x-2">
-          <Truck className="w-4 h-4 text-purple-600" />
-          <span className="font-medium">
-            {getTotalTransfersCount(location)}
-          </span>
-        </div>
-      ),
-    },
-    {
-      key: "actions",
-      header: "Actions",
-      sortable: false,
-      render: (location: Location) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEdit(location)}>
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleDelete(location.id)}
-              className="text-red-600"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ),
-    },
-  ];
 
   if (isLoading) {
     return (
@@ -437,17 +360,93 @@ export default function LocationsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <VirtualizedTable
-              data={filteredLocations}
-              columns={columns}
-              keyExtractor={(item) => item.id}
-              onSort={(key, direction) => {
-                // Sorting logic would be implemented here
-                console.log(`Sort by ${key} ${direction}`);
-              }}
-              emptyMessage="No locations found"
-              className="w-full"
-            />
+            <div className="rounded-md border overflow-hidden custom-scrollbar table-container-mobile">
+              <Table className="structured-table table-mobile-min-width">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="table-header-location table-cell-name">Location Name</TableHead>
+                    <TableHead className="table-header-address table-cell-address">Address</TableHead>
+                    <TableHead className="table-header-number table-cell-number">Stock Items</TableHead>
+                    <TableHead className="table-header-number table-cell-number">Transfers</TableHead>
+                    <TableHead className="table-header-actions table-cell-actions">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredLocations.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-24 text-center">
+                        <div className="text-muted-foreground">
+                          No locations found
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredLocations.map((location) => (
+                      <TableRow key={location.id} className="hover:bg-muted/50">
+                        <TableCell className="table-cell-name">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                              <MapPin className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-medium truncate">{location.name}</div>
+                              {location.description && (
+                                <div className="text-sm text-gray-500 truncate">
+                                  {location.description}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="table-cell-address">
+                          <div className="text-sm text-gray-900 truncate">
+                            {location.address || (
+                              <span className="text-gray-400">No address provided</span>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="table-cell-number">
+                          <div className="flex items-center justify-center space-x-2">
+                            <Package className="w-4 h-4 text-green-600 flex-shrink-0" />
+                            <span className="font-medium">{getStockItemsCount(location)}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="table-cell-number">
+                          <div className="flex items-center justify-center space-x-2">
+                            <Truck className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                            <span className="font-medium">
+                              {getTotalTransfersCount(location)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="table-cell-actions">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEdit(location)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                onClick={() => handleDelete(location.id)}
+                                className="text-red-600"
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
       </div>
