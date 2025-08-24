@@ -1,0 +1,279 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+}
+
+enum StockStatus {
+  IN_STOCK
+  LOW_STOCK
+  OUT_OF_STOCK
+  EXPIRED
+}
+
+enum TransferStatus {
+  PENDING
+  IN_TRANSIT
+  COMPLETED
+  CANCELLED
+}
+
+enum AlertType {
+  LOW_STOCK
+  EXPIRY
+  REORDER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  role      UserRole @default(STAFF)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  sales     Sale[]
+  stockLogs StockLog[]
+  transfers Transfer[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+model Location {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  stockItems StockItem[]
+  transfersFrom Transfer[] @relation("TransferFrom")
+  transfersTo   Transfer[] @relation("TransferTo")
+  sales     Sale[]
+  stockLogs StockLog[]
+
+  @@map("locations")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  sku         String?  @unique
+  barcode     String?  @unique
+  price       Float
+  cost        Float
+  categoryId  String
+  minStock    Int      @default(0)
+  maxStock    Int?
+  trackBatch  Boolean  @default(false)
+  trackExpiry Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  category   Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  stockItems StockItem[]
+  saleItems  SaleItem[]
+  batches    Batch[]
+  alerts     Alert[]
+  transferItems TransferItem[]
+  stockLogs StockLog[]
+
+  @@map("products")
+}
+
+model Batch {
+  id          String   @id @default(cuid())
+  batchNumber String
+  productId   String
+  expiryDate  DateTime?
+  quantity    Int
+  cost        Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  stockItems StockItem[]
+  saleItems  SaleItem[]
+  transferItems TransferItem[]
+  stockLogs StockLog[]
+
+  @@unique([productId, batchNumber])
+  @@map("batches")
+}
+
+model StockItem {
+  id          String   @id @default(cuid())
+  productId   String
+  locationId  String
+  batchId     String?
+  quantity    Int      @default(0)
+  reserved    Int      @default(0)
+  available   Int      @default(0)
+  status      StockStatus @default(IN_STOCK)
+  lastUpdated DateTime @default(now())
+
+  // Relations
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  batch    Batch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@unique([productId, locationId, batchId])
+  @@map("stock_items")
+}
+
+model Sale {
+  id          String   @id @default(cuid())
+  invoiceNo   String   @unique
+  customerId  String?
+  customerName String?
+  totalAmount Float
+  discount    Float    @default(0)
+  tax         Float    @default(0)
+  finalAmount Float
+  status      String   @default("completed")
+  userId      String
+  locationId  String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  location Location  @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  items    SaleItem[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id          String   @id @default(cuid())
+  saleId      String
+  productId   String
+  quantity    Int
+  price       Float
+  discount    Float    @default(0)
+  total       Float
+  batchId     String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  batch   Batch?  @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@map("sale_items")
+}
+
+model Transfer {
+  id          String        @id @default(cuid())
+  transferNo  String        @unique
+  fromLocationId String
+  toLocationId   String
+  status      TransferStatus @default(PENDING)
+  notes       String?
+  userId      String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  completedAt DateTime?
+
+  // Relations
+  fromLocation Location     @relation("TransferFrom", fields: [fromLocationId], references: [id], onDelete: Cascade)
+  toLocation   Location     @relation("TransferTo", fields: [toLocationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items        TransferItem[]
+
+  @@map("transfers")
+}
+
+model TransferItem {
+  id          String   @id @default(cuid())
+  transferId  String
+  productId   String
+  batchId     String?
+  quantity    Int
+  cost        Float
+  createdAt   DateTime @default(now())
+
+  // Relations
+  transfer Transfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  batch    Batch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@map("transfer_items")
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  productId   String
+  type        AlertType
+  message     String
+  severity    String    @default("medium")
+  isActive    Boolean   @default(true)
+  isResolved  Boolean   @default(false)
+  resolvedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("alerts")
+}
+
+model StockLog {
+  id          String   @id @default(cuid())
+  productId   String
+  locationId  String
+  batchId     String?
+  quantity    Int
+  type        String   // 'in', 'out', 'adjustment'
+  reference   String?  // sale_id, transfer_id, etc.
+  notes       String?
+  userId      String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  location Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  batch    Batch?   @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("stock_logs")
+}
