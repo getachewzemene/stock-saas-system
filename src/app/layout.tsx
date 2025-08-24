@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/providers";
-import { PWAPrompt } from "@/components/pwa/pwa-install-button";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,25 +24,6 @@ export const metadata: Metadata = {
     description: "Modern inventory management system with multi-language support",
     type: "website",
   },
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "Stock Pro",
-  },
-  formatDetection: {
-    telephone: false,
-  },
-  icons: {
-    icon: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
-    ],
-    apple: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
-    ],
-  },
 };
 
 export default function RootLayout({
@@ -59,7 +39,6 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster />
-          <PWAPrompt />
         </Providers>
       </body>
     </html>

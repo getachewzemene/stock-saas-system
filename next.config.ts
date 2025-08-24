@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   /* config options here */
@@ -21,25 +20,6 @@ const nextConfig: NextConfig = {
     // 构建时忽略ESLint错误
     ignoreDuringBuilds: true,
   },
-  // PWA configuration
-  pwa: {
-    dest: "public",
-    register: true,
-    skipWaiting: true,
-    disable: process.env.NODE_ENV === "development",
-    runtimeCaching: [
-      {
-        urlPattern: /^https?.*/,
-        handler: "NetworkFirst",
-        options: {
-          cacheName: "offlineCache",
-          expiration: {
-            maxEntries: 200,
-          },
-        },
-      },
-    ],
-  },
 };
 
-export default withPWA(nextConfig);
+export default nextConfig;
