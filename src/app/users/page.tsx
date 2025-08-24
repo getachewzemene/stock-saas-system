@@ -48,18 +48,20 @@ import {
   Mail,
   Phone,
   Calendar,
-  RefreshCw,
   Eye,
   Key,
   UserPlus,
   UserCheck,
   UserX
 } from "lucide-react";
+import { useRefresh } from "@/lib/hooks/use-refresh";
+import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useUsers, useApiMutation, PaginationParams } from "@/lib/api/hooks";
-import { VirtualizedTable } from "@/components/ui/virtualized-table";
 import { LoadingTable } from "@/components/ui/loading";
+
+import { VirtualizedTable } from "@/components/ui/virtualized-table";
 
 interface User {
   id: string;
@@ -97,6 +99,21 @@ export default function UsersPage() {
     page: 1,
     limit: 20,
   });
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Users data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh users data");
+    }
+  });
+
+  const handleRefresh = () => {
+    // TanStack Query will automatically refetch the data
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     name: "",
@@ -262,19 +279,10 @@ export default function UsersPage() {
         subtitle={t('users.subtitle')}
         showNewButton={true}
         onNewClick={() => setIsDialogOpen(true)}
+        onRefreshClick={handleRefresh}
+        isRefreshing={isRefreshing}
       >
         <div className="space-y-6">
-          <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-            <Button variant="outline" disabled className="w-full sm:w-auto">
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Refresh
-            </Button>
-            <Button disabled className="w-full sm:w-auto">
-              <UserPlus className="w-4 h-4 mr-2" />
-              Add User
-            </Button>
-          </div>
-          
           {/* Loading skeleton for summary cards */}
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
             {[...Array(4)].map((_, i) => (
@@ -324,15 +332,12 @@ export default function UsersPage() {
       subtitle={t('users.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-          <Button variant="gold" className="w-full sm:w-auto">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
               <Button variant="gold" onClick={resetForm} className="w-full sm:w-auto">
                 <UserPlus className="w-4 h-4 mr-2" />
                 Add User
@@ -760,7 +765,6 @@ export default function UsersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </LayoutWrapper>
   );
 }

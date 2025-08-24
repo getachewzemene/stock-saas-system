@@ -39,17 +39,18 @@ import {
   Package,
   MapPin,
   Calendar,
-  RefreshCw,
   Eye,
   CheckCircle,
   XCircle,
   Clock,
   FileText
 } from "lucide-react";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useTransfers, useProducts, useLocations, useApiMutation, PaginationParams } from "@/lib/api/hooks";
+
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
 
 interface Transfer {
@@ -163,6 +164,20 @@ export default function TransfersPage() {
     hasNext: false,
     hasPrev: false,
   });
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Transfers data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh transfers data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh(fetchTransfers);
+  };
   
   const [formData, setFormData] = useState({
     fromLocationId: "",
@@ -443,15 +458,12 @@ export default function TransfersPage() {
       subtitle={t('transfers.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={fetchTransfers}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
               <Button onClick={resetForm}>
                 <Plus className="w-4 h-4 mr-2" />
                 New Transfer
@@ -943,7 +955,6 @@ export default function TransfersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </LayoutWrapper>
   );
 }

@@ -35,7 +35,6 @@ import {
   Download, 
   Filter,
   Calendar as CalendarIcon,
-  RefreshCw,
   FileText,
   DollarSign,
   Users,
@@ -45,6 +44,7 @@ import { format, subDays, startOfDay, endOfDay } from "date-fns";
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
 import {
   BarChart,
@@ -129,6 +129,20 @@ export default function ReportsPage() {
   });
   const [reportType, setReportType] = useState("overview");
   const [selectedCategory, setSelectedCategory] = useState("all");
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Reports data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh reports data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh(fetchReportData);
+  };
   
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -258,6 +272,8 @@ export default function ReportsPage() {
       title="Reports & Analytics"
       subtitle="Generate and view detailed reports on inventory, sales, and performance"
       showNewButton={false}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         {/* Filters */}

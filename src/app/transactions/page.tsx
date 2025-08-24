@@ -48,14 +48,15 @@ import {
   XCircle,
   Truck
 } from "lucide-react";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useProducts, useLocations, useApiMutation, PaginationParams } from "@/lib/api/hooks";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
-import { LoadingTable } from "@/components/ui/loading";
-import { useRefresh } from "@/lib/hooks/use-refresh";
 import { InvoiceTemplate } from "@/components/invoice/invoice-template";
+
+import { LoadingTable } from "@/components/ui/loading";
 
 interface Transaction {
   id: string;
@@ -155,6 +156,20 @@ export default function TransactionsPage() {
     page: 1,
     limit: 20,
   });
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Transactions data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh transactions data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     type: "sale" as "sale" | "order",
@@ -226,15 +241,6 @@ export default function TransactionsPage() {
 
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: locations = [], isLoading: locationsLoading } = useLocations();
-  
-  const { refresh } = useRefresh({
-    onSuccess: () => {
-      toast.success("Data refreshed successfully");
-    },
-    onError: (error) => {
-      toast.error("Failed to refresh data");
-    }
-  });
 
   // Mock pagination info
   const paginationInfo = {
@@ -416,8 +422,8 @@ export default function TransactionsPage() {
         subtitle={t('transactions.subtitle')}
         showNewButton={true}
         onNewClick={() => setIsDialogOpen(true)}
-        onRefreshClick={refresh}
-        isRefreshing={false}
+        onRefreshClick={handleRefresh}
+        isRefreshing={isRefreshing}
       >
         <Card>
           <CardHeader>
@@ -452,8 +458,8 @@ export default function TransactionsPage() {
       subtitle={t('transactions.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
-      onRefreshClick={refresh}
-      isRefreshing={false}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

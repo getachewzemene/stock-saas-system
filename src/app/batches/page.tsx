@@ -38,14 +38,15 @@ import {
   Calendar,
   DollarSign,
   Box,
-  RefreshCw,
   Eye,
   AlertTriangle,
   CheckCircle
 } from "lucide-react";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
+
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
 
 interface Batch {
@@ -112,6 +113,20 @@ export default function BatchesPage() {
     hasNext: false,
     hasPrev: false,
   });
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Batches data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh batches data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh(fetchBatches);
+  };
   
   const [formData, setFormData] = useState({
     batchNumber: "",
@@ -299,15 +314,12 @@ export default function BatchesPage() {
       subtitle="Manage product batches, expiry dates, and inventory tracking"
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={fetchBatches}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
               <Button onClick={resetForm}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Batch
@@ -705,7 +717,6 @@ export default function BatchesPage() {
             )}
           </DialogContent>
         </Dialog>
-      </div>
     </LayoutWrapper>
   );
 }

@@ -32,6 +32,8 @@ import {
   RotateCcw
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
+import { toast } from "sonner";
 
 // Mock sales data
 const mockSales = [
@@ -83,6 +85,20 @@ export default function SalesPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSale, setEditingSale] = useState(null);
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Sales data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh sales data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     orderNumber: "",
@@ -145,6 +161,8 @@ export default function SalesPage() {
       subtitle={t('sales.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         {/* Stats Cards */}

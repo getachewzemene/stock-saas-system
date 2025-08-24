@@ -34,6 +34,8 @@ import {
   Calendar
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
+import { toast } from "sonner";
 
 // Mock customers data
 const mockCustomers = [
@@ -89,6 +91,20 @@ export default function CustomersPage() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState(null);
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Customers data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh customers data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     name: "",
@@ -158,6 +174,8 @@ export default function CustomersPage() {
       subtitle={t('customers.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         {/* Stats Cards */}

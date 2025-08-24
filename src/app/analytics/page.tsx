@@ -9,8 +9,10 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { PieChart as PieChartIcon } from 'lucide-react'
 import { LayoutWrapper } from '@/components/layout/layout-wrapper'
 import { useI18n } from '@/lib/i18n/context'
+import { useRefresh } from '@/lib/hooks/use-refresh'
 import { useAnalytics, useApiMutation } from '@/lib/api/hooks'
 import { LoadingCard } from '@/components/ui/loading'
+import { toast } from 'sonner'
 
 // Define interfaces
 interface MetricCard {
@@ -109,6 +111,20 @@ export default function AnalyticsPage() {
   const [customReports, setCustomReports] = useState<CustomReport[]>([])
   const [activeTab, setActiveTab] = useState<string>('overview')
   const [isClient, setIsClient] = useState<boolean>(false)
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Analytics data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh analytics data");
+    }
+  })
+
+  const handleRefresh = () => {
+    refresh();
+  }
 
   // Use TanStack Query for analytics data
   const { data: analyticsData, isLoading: analyticsLoading } = useAnalytics({
@@ -281,7 +297,13 @@ export default function AnalyticsPage() {
   // Show loading state during server rendering or while loading data
   if (!isClient || analyticsLoading) {
     return (
-      <LayoutWrapper title="Advanced Analytics" subtitle="Real-time analysis and predictions">
+      <LayoutWrapper 
+        title="Advanced Analytics" 
+        subtitle="Real-time analysis and predictions"
+        onRefreshClick={handleRefresh}
+        isRefreshing={isRefreshing}
+        shimmerType="chart"
+      >
         <div className="space-y-6">
           {/* Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -328,7 +350,13 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <LayoutWrapper title="Advanced Analytics" subtitle="Real-time analysis and predictions">
+    <LayoutWrapper 
+      title="Advanced Analytics" 
+      subtitle="Real-time analysis and predictions"
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
+      shimmerType="chart"
+    >
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

@@ -38,7 +38,6 @@ import {
   MapPin,
   Package,
   Truck,
-  RefreshCw,
   Building,
   FileText,
   Filter
@@ -46,6 +45,7 @@ import {
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { 
   Table, 
   TableBody, 
@@ -78,6 +78,20 @@ export default function LocationsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Locations data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh locations data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh(fetchLocations);
+  };
   
   const [formData, setFormData] = useState({
     name: "",
@@ -215,14 +229,11 @@ export default function LocationsPage() {
         resetForm();
         setIsDialogOpen(true);
       }}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-          <Button variant="outline" onClick={fetchLocations} className="w-full sm:w-auto">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button onClick={resetForm} className="w-full sm:w-auto">

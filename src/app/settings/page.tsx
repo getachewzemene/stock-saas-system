@@ -33,7 +33,6 @@ import {
   Phone,
   MapPin,
   Save,
-  RefreshCw,
   Download,
   Upload,
   Users,
@@ -45,6 +44,7 @@ import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useTheme } from "@/lib/theme/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 
 interface SystemSettings {
   company: {
@@ -98,6 +98,24 @@ interface BackupInfo {
 export default function SettingsPage() {
   const { t, language: currentLanguage, setLanguage: setI18nLanguage } = useI18n();
   const { theme: currentTheme, setTheme: setThemeContext } = useTheme();
+  
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Settings data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh settings data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh(() => {
+      fetchSettings();
+      fetchBackupInfo();
+    });
+  };
+
   const [settings, setSettings] = useState<SystemSettings>({
     company: {
       name: "",
@@ -281,15 +299,10 @@ export default function SettingsPage() {
     <LayoutWrapper 
       title={t('settings.title') || 'Settings'} 
       subtitle={t('settings.subtitle') || 'Manage your system settings and preferences'}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
-        <div className="flex justify-end">
-          <Button variant="outline" onClick={fetchSettings}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-        </div>
-
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="relative w-full overflow-x-auto">
             <TabsList className="flex w-max min-w-full bg-muted p-1 rounded-lg">

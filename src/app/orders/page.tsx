@@ -33,6 +33,8 @@ import {
   Package
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
+import { toast } from "sonner";
 
 // Mock orders data
 const mockOrders = [
@@ -89,6 +91,20 @@ export default function OrdersPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Orders data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh orders data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     orderNumber: "",
@@ -154,6 +170,8 @@ export default function OrdersPage() {
       subtitle={t('orders.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         {/* Stats Cards */}

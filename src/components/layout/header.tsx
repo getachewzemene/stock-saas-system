@@ -61,6 +61,9 @@ export function Header({ title, subtitle, showNewButton = false, onNewClick, onR
   const router = useRouter();
   const pathname = usePathname();
 
+  // Always show refresh button except on login and auth pages
+  const showRefreshButton = !pathname.includes('/login') && !pathname.includes('/auth');
+
   const languages = [
     { code: 'en', name: 'English', flag: '🇺🇸' },
     { code: 'am', name: 'አማርኛ', flag: '🇪🇹' },
@@ -126,13 +129,13 @@ export function Header({ title, subtitle, showNewButton = false, onNewClick, onR
           </div>
           
           {/* Refresh button */}
-          {onRefreshClick && (
+          {showRefreshButton && (
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={onRefreshClick}
+                  onClick={onRefreshClick || (() => window.location.reload())}
                   disabled={isRefreshing}
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />

@@ -5,6 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
+import { useRefresh } from "@/lib/hooks/use-refresh";
+import { ShimmerStats, ShimmerChart, ShimmerList } from "@/components/ui/shimmer";
+import { toast } from "sonner";
 import { 
   Package, 
   ShoppingCart, 
@@ -46,8 +49,64 @@ import {
 } from "recharts";
 import { cn } from "@/lib/utils";
 
-// Mock data for dashboard
-const salesData = [
+// Dashboard data interfaces
+interface DashboardStats {
+  totalProducts: number;
+  totalSales: number;
+  activeUsers: number;
+  revenue: number;
+  productChange: string;
+  salesChange: string;
+  usersChange: string;
+  revenueChange: string;
+}
+
+interface SalesData {
+  name: string;
+  sales: number;
+  revenue: number;
+}
+
+interface StockData {
+  name: string;
+  stock: number;
+  min: number;
+  max: number;
+}
+
+interface CategoryData {
+  name: string;
+  value: number;
+  fill: string;
+}
+
+interface Activity {
+  id: number;
+  type: "sale" | "stock" | "transfer" | "alert";
+  user: string;
+  item: string;
+  quantity: number;
+  time: string;
+}
+
+interface LowStockItem {
+  id: number;
+  name: string;
+  current: number;
+  min: number;
+  category: string;
+}
+
+interface Alert {
+  id: number;
+  type: string;
+  message: string;
+  severity: "high" | "medium" | "low";
+  time: string;
+}
+
+// Mock data for dashboard (will be replaced with API calls)
+const mockSalesData: SalesData[] = [
   { name: "Jan", sales: 4000, revenue: 2400 },
   { name: "Feb", sales: 3000, revenue: 1398 },
   { name: "Mar", sales: 2000, revenue: 9800 },
@@ -56,7 +115,7 @@ const salesData = [
   { name: "Jun", sales: 2390, revenue: 3800 },
 ];
 
-const stockData = [
+const mockStockData: StockData[] = [
   { name: "Product A", stock: 400, min: 100, max: 800 },
   { name: "Product B", stock: 300, min: 50, max: 600 },
   { name: "Product C", stock: 200, min: 75, max: 400 },
@@ -64,7 +123,7 @@ const stockData = [
   { name: "Product E", stock: 189, min: 50, max: 300 },
 ];
 
-const categoryData = [
+const mockCategoryData: CategoryData[] = [
   { name: "Electronics", value: 35, fill: "#8884d8" },
   { name: "Clothing", value: 25, fill: "#82ca9d" },
   { name: "Food", value: 20, fill: "#ffc658" },
@@ -72,7 +131,7 @@ const categoryData = [
   { name: "Other", value: 8, fill: "#8dd1e1" },
 ];
 
-const recentActivities = [
+const mockRecentActivities: Activity[] = [
   { id: 1, type: "sale", user: "John Doe", item: "Product A", quantity: 5, time: "2 min ago" },
   { id: 2, type: "stock", user: "Jane Smith", item: "Product B", quantity: 10, time: "5 min ago" },
   { id: 3, type: "transfer", user: "Bob Johnson", item: "Product C", quantity: 3, time: "10 min ago" },
@@ -80,65 +139,109 @@ const recentActivities = [
   { id: 5, type: "sale", user: "Alice Brown", item: "Product E", quantity: 2, time: "20 min ago" },
 ];
 
-const lowStockItems = [
+const mockLowStockItems: LowStockItem[] = [
   { id: 1, name: "Product A", current: 5, min: 10, category: "Electronics" },
   { id: 2, name: "Product B", current: 3, min: 15, category: "Clothing" },
   { id: 3, name: "Product C", current: 8, min: 20, category: "Food" },
 ];
 
-const alerts = [
+const mockAlerts: Alert[] = [
   { id: 1, type: "low-stock", message: "Product A is running low on stock", severity: "high", time: "2 min ago" },
   { id: 2, type: "expiry", message: "Product B batch expires in 7 days", severity: "medium", time: "1 hour ago" },
   { id: 3, type: "system", message: "System backup completed successfully", severity: "low", time: "2 hours ago" },
 ];
 
 export default function Dashboard() {
-  const [isLoading, setIsLoading] = useState(true);
   const [timeRange, setTimeRange] = useState("week");
   const [searchQuery, setSearchQuery] = useState("");
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [salesData, setSalesData] = useState<SalesData[]>([]);
+  const [stockData, setStockData] = useState<StockData[]>([]);
+  const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+  const [recentActivities, setRecentActivities] = useState<Activity[]>([]);
+  const [lowStockItems, setLowStockItems] = useState<LowStockItem[]>([]);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+
+  const { refresh, isRefreshing, showShimmer } = useRefresh({
+    onSuccess: () => {
+      toast.success("Dashboard data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh dashboard data");
+    }
+  });
+
+  const fetchDashboardData = async () => {
+    try {
+      // Simulate API calls - in real implementation, these would be actual API calls
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Set mock data (replace with actual API calls)
+      setDashboardStats({
+        totalProducts: 1234,
+        totalSales: 45678,
+        activeUsers: 89,
+        revenue: 12345,
+        productChange: "+12%",
+        salesChange: "+23%",
+        usersChange: "+5%",
+        revenueChange: "+18%"
+      });
+      
+      setSalesData(mockSalesData);
+      setStockData(mockStockData);
+      setCategoryData(mockCategoryData);
+      setRecentActivities(mockRecentActivities);
+      setLowStockItems(mockLowStockItems);
+      setAlerts(mockAlerts);
+      
+    } catch (error) {
+      toast.error("Failed to load dashboard data");
+    }
+  };
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
+    fetchDashboardData();
   }, []);
 
-  const stats = [
+  const handleRefresh = () => {
+    refresh(fetchDashboardData);
+  };
+
+  const stats = dashboardStats ? [
     {
       title: "Total Products",
-      value: "1,234",
-      change: "+12%",
+      value: dashboardStats.totalProducts.toLocaleString(),
+      change: dashboardStats.productChange,
       icon: Package,
       color: "text-blue-600",
       bgColor: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
       title: "Total Sales",
-      value: "$45,678",
-      change: "+23%",
+      value: `$${dashboardStats.totalSales.toLocaleString()}`,
+      change: dashboardStats.salesChange,
       icon: ShoppingCart,
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-900/20",
     },
     {
       title: "Active Users",
-      value: "89",
-      change: "+5%",
+      value: dashboardStats.activeUsers.toString(),
+      change: dashboardStats.usersChange,
       icon: Users,
       color: "text-purple-600",
       bgColor: "bg-purple-50 dark:bg-purple-900/20",
     },
     {
       title: "Revenue",
-      value: "$12,345",
-      change: "+18%",
+      value: `$${dashboardStats.revenue.toLocaleString()}`,
+      change: dashboardStats.revenueChange,
       icon: DollarSign,
       color: "text-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-900/20",
     },
-  ];
+  ] : [];
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
@@ -169,18 +272,14 @@ export default function Dashboard() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-yellow-600"></div>
-      </div>
-    );
-  }
-
   return (
     <LayoutWrapper 
       title="Dashboard" 
       subtitle="Welcome back! Here's what's happening with your inventory today."
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
+      showShimmer={showShimmer}
+      shimmerType="dashboard"
     >
       <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 px-4 sm:px-0">
         {/* Search and Filter Controls */}

@@ -44,11 +44,13 @@ import {
   Download,
   Minus
 } from "lucide-react";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useStock, useProducts, useLocations, useBatches, useApiMutation, PaginationParams } from "@/lib/api/hooks";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
+
 import { LoadingTable } from "@/components/ui/loading";
 
 interface StockItem {
@@ -131,6 +133,21 @@ export default function StockPage() {
     page: 1,
     limit: 20,
   });
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Stock data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh stock data");
+    }
+  });
+
+  const handleRefresh = () => {
+    // TanStack Query will automatically refetch the data
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     productId: "",
@@ -143,8 +160,7 @@ export default function StockPage() {
   const { 
     data: stockData, 
     isLoading: stockLoading, 
-    isFetching: stockFetching,
-    refetch: refetchStock
+    isFetching: stockFetching
   } = useStock({
     page: pagination.page,
     limit: pagination.limit,
@@ -295,8 +311,8 @@ export default function StockPage() {
         subtitle={t('stock.subtitle')}
         showNewButton={true}
         onNewClick={() => setIsDialogOpen(true)}
-        onRefreshClick={refetchStock}
-        isRefreshing={stockFetching}
+        onRefreshClick={handleRefresh}
+        isRefreshing={isRefreshing}
       >
         <Card>
           <CardHeader>
@@ -329,8 +345,8 @@ export default function StockPage() {
       subtitle={t('stock.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
-      onRefreshClick={refetchStock}
-      isRefreshing={stockFetching}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

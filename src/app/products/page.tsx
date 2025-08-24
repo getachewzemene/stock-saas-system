@@ -42,10 +42,12 @@ import {
   Filter
 } from "lucide-react";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
+import { useRefresh } from "@/lib/hooks/use-refresh";
+import { ShimmerTable } from "@/components/ui/shimmer";
+import { toast } from "sonner";
 import { useI18n } from "@/lib/i18n/context";
 import { useProducts, useCategories, useApiMutation, PaginationParams } from "@/lib/api/hooks";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
-import { LoadingTable } from "@/components/ui/loading";
 
 interface Product {
   id: string;
@@ -96,6 +98,21 @@ export default function ProductsPage() {
     page: 1,
     limit: 20,
   });
+
+  // Refresh functionality
+  const { refresh, isRefreshing, showShimmer } = useRefresh({
+    onSuccess: () => {
+      toast.success("Products data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh products data");
+    }
+  });
+
+  const handleRefresh = () => {
+    // TanStack Query will automatically refetch the data
+    refresh();
+  };
   
   const [formData, setFormData] = useState({
     name: "",
@@ -116,8 +133,7 @@ export default function ProductsPage() {
   const { 
     data: productsData, 
     isLoading: productsLoading, 
-    isFetching: productsFetching,
-    refetch: refetchProducts
+    isFetching: productsFetching
   } = useProducts({
     page: pagination.page,
     limit: pagination.limit,
@@ -264,53 +280,16 @@ export default function ProductsPage() {
     }
   };
 
-  if (productsLoading || categoriesLoading) {
-    return (
-      <LayoutWrapper 
-        title={t('products.title')} 
-        subtitle={t('products.subtitle')}
-        showNewButton={true}
-        onNewClick={() => setIsDialogOpen(true)}
-        onRefreshClick={refetchProducts}
-        isRefreshing={productsFetching}
-      >
-        <Card>
-          <CardHeader>
-            <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:items-center sm:justify-between">
-              <CardTitle>{t('products.productInventory')}</CardTitle>
-              <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-                <div className="relative w-full sm:w-64">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                  <Input
-                    placeholder={t('products.searchProducts')}
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 w-full"
-                  />
-                </div>
-                <Button variant="gold" size="sm" className="w-full sm:w-auto">
-                  <Filter className="w-4 h-4 mr-2" />
-                  {t('common.filter')}
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <LoadingTable rows={5} columns={7} />
-          </CardContent>
-        </Card>
-      </LayoutWrapper>
-    );
-  }
-
   return (
     <LayoutWrapper 
       title={t('products.title')} 
       subtitle={t('products.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
-      onRefreshClick={refetchProducts}
-      isRefreshing={productsFetching}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
+      showShimmer={showShimmer}
+      shimmerType="table"
     >
       <div className="space-y-6">
         <Card>
@@ -335,18 +314,21 @@ export default function ProductsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <VirtualizedTable
-              data={products}
-              loading={productsLoading || productsFetching}
-              pagination={{
-                page: paginationInfo.page,
-                totalPages: paginationInfo.totalPages,
-                total: paginationInfo.total,
-                limit: pagination.limit,
-                onPageChange: (page) => setPagination(prev => ({ ...prev, page })),
-                onItemsPerPageChange: (limit) => setPagination(prev => ({ ...prev, limit, page: 1 }))
-              }}
-              columns={[
+            {(productsLoading || categoriesLoading) ? (
+              <ShimmerTable rows={5} columns={7} />
+            ) : (
+              <VirtualizedTable
+                data={products}
+                loading={productsLoading || productsFetching}
+                pagination={{
+                  page: paginationInfo.page,
+                  totalPages: paginationInfo.totalPages,
+                  total: paginationInfo.total,
+                  limit: pagination.limit,
+                  onPageChange: (page) => setPagination(prev => ({ ...prev, page })),
+                  onItemsPerPageChange: (limit) => setPagination(prev => ({ ...prev, limit, page: 1 }))
+                }}
+                columns={[
                 {
                   key: "name",
                   header: "Product",
@@ -438,6 +420,7 @@ export default function ProductsPage() {
                 }
               ]}
             />
+            )}
           </CardContent>
         </Card>
 

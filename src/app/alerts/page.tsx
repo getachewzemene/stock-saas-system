@@ -38,7 +38,6 @@ import {
   AlertTriangle,
   Package,
   Calendar,
-  RefreshCw,
   Eye,
   Filter,
   Clock,
@@ -51,6 +50,7 @@ import {
 import { toast } from "sonner";
 import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { ModernTable } from "@/components/ui/modern-table";
 
 interface Alert {
@@ -110,6 +110,23 @@ export default function AlertsPage() {
   const [isRulesDialogOpen, setIsRulesDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
+
+  // Refresh functionality
+  const { refresh, isRefreshing } = useRefresh({
+    onSuccess: () => {
+      toast.success("Alerts data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh alerts data");
+    }
+  });
+
+  const handleRefresh = () => {
+    refresh(() => {
+      fetchAlerts();
+      fetchAlertRules();
+    });
+  };
   
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -310,13 +327,10 @@ export default function AlertsPage() {
     <LayoutWrapper 
       title={t('alerts.title')} 
       subtitle={t('alerts.subtitle')}
+      onRefreshClick={handleRefresh}
+      isRefreshing={isRefreshing}
     >
       <div className="space-y-6">
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" onClick={fetchAlerts}>
-            <RefreshCw className="w-4 h-4 mr-2 text-yellow-600" />
-            Refresh
-          </Button>
           <Button variant="outline" onClick={markAllAsRead}>
             <CheckCircle className="w-4 h-4 mr-2 text-yellow-600" />
             Mark All Read
@@ -741,7 +755,6 @@ export default function AlertsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </LayoutWrapper>
   );
 }
