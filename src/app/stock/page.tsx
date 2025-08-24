@@ -40,7 +40,6 @@ import {
   Calendar,
   MapPin,
   Box,
-  RefreshCw,
   Eye,
   Download,
   Minus
@@ -50,6 +49,7 @@ import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useStock, useProducts, useLocations, useBatches, useApiMutation, PaginationParams } from "@/lib/api/hooks";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
+import { LoadingTable } from "@/components/ui/loading";
 
 interface StockItem {
   id: string;
@@ -143,7 +143,8 @@ export default function StockPage() {
   const { 
     data: stockData, 
     isLoading: stockLoading, 
-    isFetching: stockFetching 
+    isFetching: stockFetching,
+    refetch: refetchStock
   } = useStock({
     page: pagination.page,
     limit: pagination.limit,
@@ -289,27 +290,51 @@ export default function StockPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
+      <LayoutWrapper
+        title={t('stock.title')}
+        subtitle={t('stock.subtitle')}
+        showNewButton={true}
+        onNewClick={() => setIsDialogOpen(true)}
+        onRefreshClick={refetchStock}
+        isRefreshing={stockFetching}
+      >
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:items-center sm:justify-between">
+              <CardTitle>{t('stock.stockInventory')}</CardTitle>
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder={t('stock.searchStock')}
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <LoadingTable rows={5} columns={7} />
+          </CardContent>
+        </Card>
+      </LayoutWrapper>
     );
   }
 
   return (
     <LayoutWrapper
-      title="Stock Management"
-      subtitle="Manage inventory levels, batches, and expiry dates"
+      title={t('stock.title')}
+      subtitle={t('stock.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={refetchStock}
+      isRefreshing={stockFetching}
     >
       <div className="space-y-6">
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-          <Button variant="outline" className="w-full sm:w-auto">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
               <Button onClick={resetForm} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Stock
@@ -713,7 +738,6 @@ export default function StockPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      </div>
     </LayoutWrapper>
   );
 }

@@ -116,7 +116,8 @@ export default function ProductsPage() {
   const { 
     data: productsData, 
     isLoading: productsLoading, 
-    isFetching: productsFetching 
+    isFetching: productsFetching,
+    refetch: refetchProducts
   } = useProducts({
     page: pagination.page,
     limit: pagination.limit,
@@ -270,6 +271,8 @@ export default function ProductsPage() {
         subtitle={t('products.subtitle')}
         showNewButton={true}
         onNewClick={() => setIsDialogOpen(true)}
+        onRefreshClick={refetchProducts}
+        isRefreshing={productsFetching}
       >
         <Card>
           <CardHeader>
@@ -306,6 +309,8 @@ export default function ProductsPage() {
       subtitle={t('products.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={refetchProducts}
+      isRefreshing={productsFetching}
     >
       <div className="space-y-6">
         <Card>

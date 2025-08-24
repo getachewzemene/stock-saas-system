@@ -11,6 +11,8 @@ interface LayoutWrapperProps {
   subtitle?: string;
   showNewButton?: boolean;
   onNewClick?: () => void;
+  onRefreshClick?: () => void;
+  isRefreshing?: boolean;
 }
 
 export function LayoutWrapper({ 
@@ -18,7 +20,9 @@ export function LayoutWrapper({
   title, 
   subtitle, 
   showNewButton = false, 
-  onNewClick 
+  onNewClick,
+  onRefreshClick,
+  isRefreshing = false
 }: LayoutWrapperProps) {
   const { isMobileOpen, closeMobile } = useSidebar();
 
@@ -37,7 +41,9 @@ export function LayoutWrapper({
           title={title} 
           subtitle={subtitle} 
           showNewButton={showNewButton} 
-          onNewClick={onNewClick} 
+          onNewClick={onNewClick}
+          onRefreshClick={onRefreshClick}
+          isRefreshing={isRefreshing}
         />
         
         {/* Page content */}

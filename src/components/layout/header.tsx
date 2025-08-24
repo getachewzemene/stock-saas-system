@@ -31,7 +31,8 @@ import {
   Menu,
   Bell,
   Settings,
-  MoreVertical
+  MoreVertical,
+  RefreshCw
 } from "lucide-react";
 import { 
   Tooltip,
@@ -49,9 +50,11 @@ interface HeaderProps {
   subtitle?: string;
   showNewButton?: boolean;
   onNewClick?: () => void;
+  onRefreshClick?: () => void;
+  isRefreshing?: boolean;
 }
 
-export function Header({ title, subtitle, showNewButton = false, onNewClick }: HeaderProps) {
+export function Header({ title, subtitle, showNewButton = false, onNewClick, onRefreshClick, isRefreshing = false }: HeaderProps) {
   const { language, setLanguage, t } = useI18n();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { toggleMobile } = useSidebar();
@@ -121,6 +124,25 @@ export function Header({ title, subtitle, showNewButton = false, onNewClick }: H
               <Search className="w-4 h-4" />
             </Button>
           </div>
+          
+          {/* Refresh button */}
+          {onRefreshClick && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onRefreshClick}
+                  disabled={isRefreshing}
+                >
+                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{t('common.refresh')}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
           
           {showNewButton && (
             <Button onClick={onNewClick} className="hidden sm:flex">

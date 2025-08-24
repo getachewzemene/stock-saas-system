@@ -53,6 +53,8 @@ import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useProducts, useLocations, useApiMutation, PaginationParams } from "@/lib/api/hooks";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
+import { LoadingTable } from "@/components/ui/loading";
+import { useRefresh } from "@/lib/hooks/use-refresh";
 import { InvoiceTemplate } from "@/components/invoice/invoice-template";
 
 interface Transaction {
@@ -224,6 +226,15 @@ export default function TransactionsPage() {
 
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: locations = [], isLoading: locationsLoading } = useLocations();
+  
+  const { refresh } = useRefresh({
+    onSuccess: () => {
+      toast.success("Data refreshed successfully");
+    },
+    onError: (error) => {
+      toast.error("Failed to refresh data");
+    }
+  });
 
   // Mock pagination info
   const paginationInfo = {
@@ -400,9 +411,36 @@ export default function TransactionsPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
-      </div>
+      <LayoutWrapper 
+        title={t('transactions.title')} 
+        subtitle={t('transactions.subtitle')}
+        showNewButton={true}
+        onNewClick={() => setIsDialogOpen(true)}
+        onRefreshClick={refresh}
+        isRefreshing={false}
+      >
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:items-center sm:justify-between">
+              <CardTitle>Transactions</CardTitle>
+              <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Input
+                    placeholder="Search transactions..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 w-full"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <LoadingTable rows={5} columns={8} />
+          </CardContent>
+        </Card>
+      </LayoutWrapper>
     );
   }
 
@@ -414,6 +452,8 @@ export default function TransactionsPage() {
       subtitle={t('transactions.subtitle')}
       showNewButton={true}
       onNewClick={() => setIsDialogOpen(true)}
+      onRefreshClick={refresh}
+      isRefreshing={false}
     >
       <div className="space-y-6">
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
