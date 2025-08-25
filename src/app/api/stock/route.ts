@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { getUserFromRequest } from '@/lib/get-user-from-request';
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,8 +10,13 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search') || '';
     const locationId = searchParams.get('locationId');
     const status = searchParams.get('status');
-
     const skip = (page - 1) * limit;
+
+    // Get user and enforce access control
+    const user = await getUserFromRequest(request);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
     // Build where clause
     const where: any = {};
@@ -24,7 +30,10 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    if (locationId) {
+    // Admins can see all stocks, others only their location
+    if (user.role !== 'ADMIN') {
+      where.locationId = user.locationId;
+    } else if (locationId) {
       where.locationId = locationId;
     }
 

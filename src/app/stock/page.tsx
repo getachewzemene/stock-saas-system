@@ -50,6 +50,7 @@ import { LayoutWrapper } from "@/components/layout/layout-wrapper";
 import { useI18n } from "@/lib/i18n/context";
 import { useStock, useProducts, useLocations, useBatches, useApiMutation, PaginationParams } from "@/lib/api/hooks";
 import { VirtualizedTable } from "@/components/ui/virtualized-table";
+import { useUserRoleAndLocation } from "@/lib/hooks/use-user-role-location";
 
 import { LoadingTable } from "@/components/ui/loading";
 
@@ -119,6 +120,192 @@ interface Batch {
   notes?: string;
 }
 
+
+interface StockItem {
+  id: string;
+  quantity: number;
+  available: number;
+  reserved: number;
+  status: string;
+  locationId: string;
+  productId: string;
+  batchId?: string;
+  createdAt: string;
+  updatedAt: string;
+  product: {
+    id: string;
+    name: string;
+    sku?: string;
+    price: number;
+    minStock: number;
+    trackBatch: boolean;
+    trackExpiry: boolean;
+    category: {
+      id: string;
+      name: string;
+    };
+  };
+  location: {
+    id: string;
+    name: string;
+    address?: string;
+  };
+  batch?: {
+    id: string;
+    batchNumber: string;
+    expiryDate?: string;
+    manufacturingDate?: string;
+    notes?: string;
+  };
+}
+
+type DataResponse<T> = T[] | {
+  data: T[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+};
+
+interface StockItem {
+  id: string;
+  quantity: number;
+  available: number;
+  reserved: number;
+  status: string;
+  locationId: string;
+  productId: string;
+  batchId?: string;
+  createdAt: string;
+  updatedAt: string;
+  product: {
+    id: string;
+    name: string;
+    sku?: string;
+    price: number;
+    minStock: number;
+    trackBatch: boolean;
+    trackExpiry: boolean;
+    category: {
+      id: string;
+      name: string;
+    };
+  };
+  location: {
+    id: string;
+    name: string;
+    address?: string;
+  };
+  batch?: {
+    id: string;
+    batchNumber: string;
+    expiryDate?: string;
+    manufacturingDate?: string;
+    notes?: string;
+  };
+}
+
+interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+type StockResponse = StockItem[] | PaginatedResponse<StockItem>;
+
+interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+
+
+type DataReturnType = StockItem[] | {
+  data: StockItem[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+};
+
+
+interface StockItem {
+  id: string;
+  quantity: number;
+  available: number;
+  reserved: number;
+  status: string;
+  locationId: string;
+  productId: string;
+  batchId?: string;
+  createdAt: string;
+  updatedAt: string;
+  product: {
+    id: string;
+    name: string;
+    sku?: string;
+    price: number;
+    minStock: number;
+    trackBatch: boolean;
+    trackExpiry: boolean;
+    category: {
+      id: string;
+      name: string;
+    };
+  };
+  location: {
+    id: string;
+    name: string;
+    address?: string;
+  };
+  batch?: {
+    id: string;
+    batchNumber: string;
+    expiryDate?: string;
+    manufacturingDate?: string;
+    notes?: string;
+  };
+}
+
+interface PaginatedStockResponse {
+  data: StockItem[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
+interface PaginatedStockResponse {
+  data: StockItem[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    hasNext: boolean;
+    hasPrev: boolean;
+  };
+}
+
 export default function StockPage() {
   const { t } = useI18n();
   const [searchTerm, setSearchTerm] = useState("");
@@ -157,11 +344,11 @@ export default function StockPage() {
   });
 
   // Use enhanced TanStack Query hooks with pagination
-  const { 
-    data: stockData, 
-    isLoading: stockLoading, 
-    isFetching: stockFetching
-  } = useStock({
+  const {
+   data: stockData,
+   isLoading: stockLoading,
+   isFetching: stockFetching
+  }: { data: PaginatedStockResponse; isLoading: boolean; isFetching: boolean } = useStock<StockItem[]>({
     page: pagination.page,
     limit: pagination.limit,
     search: searchTerm || undefined,
@@ -176,10 +363,13 @@ export default function StockPage() {
   const { data: products = [], isLoading: productsLoading } = useProducts();
   const { data: locations = [], isLoading: locationsLoading } = useLocations();
   const { data: batches = [], isLoading: batchesLoading } = useBatches();
+  const { role, locationId: userLocationId } = useUserRoleAndLocation();
+
+  const filteredLocations = role === "ADMIN" ? locations : locations.filter(l => l.id === userLocationId);
 
   // Extract data from paginated response
   const stockItems = stockData?.data || [];
-  const paginationInfo = stockData?.pagination || {
+  const paginationInfo = (stockData as PaginatedStockResponse).pagination || {
     page: 1,
     totalPages: 1,
     total: 0,
@@ -191,6 +381,23 @@ export default function StockPage() {
   useEffect(() => {
     setPagination(prev => ({ ...prev, page: 1 }));
   }, [searchTerm, statusFilter, locationFilter, pagination.limit]);
+
+  // For all location dropdowns in forms:
+  // Replace
+  // <Select value={formData.locationId} ...>
+  //   ...
+  //   {locations.map(...)}
+  // with
+  // <Select value={formData.locationId} onValueChange={...} required disabled={role !== "ADMIN"}>
+  //   <SelectTrigger>
+  //     <SelectValue placeholder="Select location" />
+  //   </SelectTrigger>
+  //   <SelectContent>
+  //     {filteredLocations.map((location) => (
+  //       <SelectItem key={location.id} value={location.id}>{location.name}</SelectItem>
+  //     ))}
+  //   </SelectContent>
+  // </Select>
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -304,6 +511,13 @@ export default function StockPage() {
 
   const isLoading = stockLoading || productsLoading || locationsLoading || batchesLoading;
 
+  // Add useEffect to always force locationFilter for non-admins:
+  useEffect(() => {
+    if (role !== "ADMIN" && userLocationId) {
+      setLocationFilter(userLocationId);
+    }
+  }, [role, userLocationId]);
+
   if (isLoading) {
     return (
       <LayoutWrapper
@@ -390,12 +604,13 @@ export default function StockPage() {
                     value={formData.locationId} 
                     onValueChange={(value) => setFormData({...formData, locationId: value})}
                     required
+                    disabled={role !== "ADMIN"}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select location" />
                     </SelectTrigger>
                     <SelectContent>
-                      {locations.map((location) => (
+                      {filteredLocations.map((location) => (
                         <SelectItem key={location.id} value={location.id}>
                           {location.name}
                         </SelectItem>
@@ -533,13 +748,13 @@ export default function StockPage() {
                 </SelectContent>
               </Select>
 
-              <Select value={locationFilter} onValueChange={setLocationFilter}>
+              <Select value={locationFilter} onValueChange={setLocationFilter} disabled={role !== "ADMIN"}>
                 <SelectTrigger className="w-full sm:w-40">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {locations.map((location) => (
+                  {role === "ADMIN" && <SelectItem value="all">All Locations</SelectItem>}
+                  {filteredLocations.map((location) => (
                     <SelectItem key={location.id} value={location.id}>
                       {location.name}
                     </SelectItem>

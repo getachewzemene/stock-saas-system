@@ -46,10 +46,12 @@ model User {
   email     String   @unique
   name      String?
   role      UserRole @default(STAFF)
+  locationId String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
+  location   Location? @relation(fields: [locationId], references: [id], onDelete: SetNull)
   sales       Sale[]
   transactions Transaction[]
   stockLogs   StockLog[]
@@ -80,6 +82,7 @@ model Location {
   updatedAt   DateTime @updatedAt
 
   // Relations
+  users         User[] // <--- add this line
   stockItems    StockItem[]
   transfersFrom Transfer[] @relation("TransferFrom")
   transfersTo   Transfer[] @relation("TransferTo")

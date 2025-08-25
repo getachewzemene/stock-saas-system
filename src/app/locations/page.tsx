@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useSession } from "next-auth/react";
+import { useUserRoleAndLocation } from "@/lib/hooks/use-user-role-location";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +108,12 @@ export default function LocationsPage() {
   const fetchLocations = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/locations");
+      const { role } = useUserRoleAndLocation();
+      const url = role === "ADMIN"
+        ? "/api/locations"
+        : `/api/locations?userId=${user?.locationId}`;
+        
+      const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
         setLocations(data);
