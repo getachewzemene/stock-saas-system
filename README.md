@@ -1,10 +1,14 @@
-# 🚀 Welcome to Z.ai Code Scaffold
+# 🚀 Stock Management System
 
-A modern, production-ready web application scaffold powered by cutting-edge technologies, designed to accelerate your development with [Z.ai](https://chat.z.ai)'s AI-powered coding assistance.
+A modern, production-ready stock management system built with cutting-edge technologies for efficient inventory tracking and business operations.
+
+## 📊 Project Repository
+
+**GitHub URL**: https://github.com/getachewzemene/stock-saas-system
 
 ## ✨ Technology Stack
 
-This scaffold provides a robust foundation built with:
+This application provides a robust foundation built with:
 
 ### 🎯 Core Framework
 - **⚡ Next.js 15** - The React framework for production with App Router
@@ -41,7 +45,7 @@ This scaffold provides a robust foundation built with:
 - **📅 Date-fns** - Modern JavaScript date utility library
 - **🪝 ReactUse** - Collection of essential React hooks for modern development
 
-## 🎯 Why This Scaffold?
+## 🎯 Key Features
 
 - **🏎️ Fast Development** - Pre-configured tooling and best practices
 - **🎨 Beautiful UI** - Complete shadcn/ui component library with advanced interactions
@@ -52,7 +56,6 @@ This scaffold provides a robust foundation built with:
 - **📊 Data Visualization** - Charts, tables, and drag-and-drop functionality
 - **🌍 i18n Ready** - Multi-language support with Next Intl
 - **🚀 Production Ready** - Optimized build and deployment settings
-- **🤖 AI-Friendly** - Structured codebase perfect for AI assistance
 
 ## 🚀 Quick Start
 
@@ -72,18 +75,6 @@ npm start
 
 Open [http://localhost:3000](http://localhost:3000) to see your application running.
 
-## 🤖 Powered by Z.ai
-
-This scaffold is optimized for use with [Z.ai](https://chat.z.ai) - your AI assistant for:
-
-- **💻 Code Generation** - Generate components, pages, and features instantly
-- **🎨 UI Development** - Create beautiful interfaces with AI assistance  
-- **🔧 Bug Fixing** - Identify and resolve issues with intelligent suggestions
-- **📝 Documentation** - Auto-generate comprehensive documentation
-- **🚀 Optimization** - Performance improvements and best practices
-
-Ready to build something amazing? Start chatting with Z.ai at [chat.z.ai](https://chat.z.ai) and experience the future of AI-powered development!
-
 ## 📁 Project Structure
 
 ```
@@ -97,7 +88,7 @@ src/
 
 ## 🎨 Available Features & Components
 
-This scaffold includes a comprehensive set of modern web development tools:
+This application includes a comprehensive set of modern web development tools:
 
 ### 🧩 UI Components (shadcn/ui)
 - **Layout**: Card, Separator, Aspect Ratio, Resizable Panels
@@ -129,13 +120,14 @@ This scaffold includes a comprehensive set of modern web development tools:
 - **Type Safety**: End-to-end TypeScript with Zod validation
 - **Essential Hooks**: 100+ useful React hooks with ReactUse for common patterns
 
-## 🤝 Get Started with Z.ai
+## 🚀 Getting Started
 
-1. **Clone this scaffold** to jumpstart your project
-2. **Visit [chat.z.ai](https://chat.z.ai)** to access your AI coding assistant
-3. **Start building** with intelligent code generation and assistance
-4. **Deploy with confidence** using the production-ready setup
+1. **Clone this repository** to jumpstart your project
+2. **Install dependencies** using `npm install`
+3. **Configure your environment** variables and database settings
+4. **Start building** with the comprehensive feature set
+5. **Deploy with confidence** using the production-ready setup
 
 ---
 
-Built with ❤️ for the developer community. Supercharged by [Z.ai](https://chat.z.ai) 🚀
+Built with ❤️ for the developer community. A comprehensive stock management solution. 🚀
