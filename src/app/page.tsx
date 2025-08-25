@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -185,6 +186,7 @@ const socialLinks = [
 
 export default function LandingPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [formData, setFormData] = useState({
     name: "",
@@ -201,8 +203,18 @@ export default function LandingPage() {
   }, []);
 
   const handleGetStarted = () => {
-    // Navigate to dashboard using Next.js router
-    router.push("/app-dashboard");
+    if (status === "loading") {
+      // Still checking authentication status, do nothing
+      return;
+    }
+    
+    if (status === "authenticated") {
+      // User is already signed in, navigate to dashboard
+      router.push("/app-dashboard");
+    } else {
+      // User is not signed in, navigate to auth page
+      router.push("/auth/signin");
+    }
   };
 
   const handleInputChange = (e) => {
@@ -251,9 +263,19 @@ export default function LandingPage() {
                 </p>
                 <Button 
                   onClick={handleGetStarted}
-                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
+                  disabled={status === "loading"}
+                  className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  Get Started Free
+                  {status === "loading" ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Loading...
+                    </>
+                  ) : status === "authenticated" ? (
+                    "Go to Dashboard"
+                  ) : (
+                    "Get Started Free"
+                  )}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </div>
@@ -468,9 +490,19 @@ export default function LandingPage() {
           </p>
           <Button 
             onClick={handleGetStarted}
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105"
+            disabled={status === "loading"}
+            className="bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 text-lg rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
-            Get Started Free
+            {status === "loading" ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Loading...
+              </>
+            ) : status === "authenticated" ? (
+              "Go to Dashboard"
+            ) : (
+              "Get Started Free"
+            )}
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
